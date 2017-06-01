@@ -10,3 +10,4 @@ python-dateutil==2.6.0
 pytz==2017.2
 s3transfer==0.1.10
 six==1.10.0
+django-cors-headers==2.1.0

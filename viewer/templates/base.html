@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Satellite Viewer</title>
     
-
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
     
@@ -21,192 +20,11 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
     
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    
+    <link rel="stylesheet" href="style.css">
 
+    <script type='text/javascript' src="script.js"></script>
 
-    <style type="text/css">
-
-      html, body { /* to make the map fill 100% of the window */
-      height: 100%;
-      overflow: hidden;
-      width: 100%;
-      font-family: Simplifica;
-      }
-
-      .overlay {
-          position: absolute;
-          top: 0;
-          left: 0;
-          z-index: 9999;
-          border: 1px solid #444;
-          background-color: rgba(0,0,0,0.2);
-      }
-
-      .overlay.horizontal-overlay {
-          top: 0;
-          width: 100%;
-      }
-
-      .overlay.vertical-overlay {
-          top: 180px;
-          width: 450px;
-          height: 100%;
-          overflow-y: scroll;
-
-      }
-
-
-      #images-list {
-
-      }
-
-      #control-panel {
-          border: 1px solid #444;
-          background-color: rgba(0,0,0,0.2);
-      }
-
-      .slider-container {
-        padding: 20px;
-      }
-
-      .slider-container input {
-        background-color: rgba(0,0,0,0.1);
-        color: white;
-        border: none;
-        font-size: 25px;
-        font-weight: bold;
-      }
-
-      .slider-container label {
-        font-family: Simplifica;
-        font-size: 25px;
-      }
-
-      #map {
-          width: auto;
-          height: 100%;
-      }
-      .slider-label {
-        color: #f6931f;
-      }
-
-      .ui-widget.ui-widget-content{
-        border: none;
-      }
-
-
-
-      .ui-slider-range {
-        background: #f6931f;
-      }
-
-      @font-face {
-      font-family: Simplifica;
-      src: url(simplifica.ttf);
-      }
-
-
-      @font-face {
-      font-family: Aqua;
-      src: url(aqua.ttf);
-      }
-      
-      #logo {
-        font-family: Simplifica;
-        font-size: 60px;
-        color: white;
-      }
-
-      .image-entry {
-        color: white;
-        padding: 10px;
-      }
-
-      .image-entry img {
-        max-width: 120px;
-        align-self: center;
-      }
-
-      .image-entry table {
-        width: 100%;
-      }
-
-      #images-list ul {
-        padding: 0;
-      }
-
-      #images-list li {
-        border-bottom: 1px dashed #444;
-        list-style-type: none;
-      }
-
-      #images-list li:hover {
-        background-color: rgba(0,0,0,0.3);
-      }
-
-      .image-entry td {
-        padding-left: 5px;
-        padding-right: 5px;
-      }
-
-      .image-entry .label {
-        color: #f6931f;
-        font-size: 20px;
-        font-weight: bold;
-      }
-
-      .image-entry .value {
-        color: #f6931f;
-        color: white;
-        font-size: 20px;
-        font-weight: bold;
-      }
-
-      
-    </style>
-
-<script type='text/javascript'>
-
-window.onload=function(){
-    var map = L.map('map', {
-          zoomControl: false
-    }).setView([54.366667, 18.633333], 9);
-    L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-    attribution: 'Imagery © <a href="http://mapbox.com">Mapbox</a>',
-    maxZoom: 17,
-    id: 'mapbox.satellite',
-    accessToken: 'pk.eyJ1IjoibWFqb3JicmlnZ3MiLCJhIjoiY2l2dHozbXdrMDA0dzJ6bHVqMWV3aHhoYyJ9.LksFMcYK2pG_TAEtn7J9Gg'
-    }).addTo(map);
-
-    percentageSlider("#clouds-range", "#clouds-amount", 0, 50);
-    percentageSlider("#data-range", "#data-amount", 0, 50);
-    percentageSlider("#date-range", "#date-amount", 0, 50);
-
-}
-
-
-function percentageSlider(slider_id, amount_id, start_min, start_max)
-{
-    $( slider_id ).slider
-    (
-      {
-        range: true,
-        min: 0,
-        max: 100,
-        values: [ start_min, start_max ],
-        slide: function( event, ui )
-          {
-            $( amount_id ).val( ui.values[ 0 ] + "% - " + ui.values[ 1 ] + "%");
-          },
-        change: function( event, ui ){
-            
-        }
-
-      }
-
-    )
-    $( amount_id ).val( $( slider_id ).slider( "values", 0 ) + "% - " + $( slider_id ).slider( "values", 1 ) + "%");
-};
-</script>
 </head>
 
 <body>
@@ -239,7 +57,7 @@ function percentageSlider(slider_id, amount_id, start_min, start_max)
           </div>
         </div>
     </div>
-    <div class="row">
+    <div class="footer">
 
     <div class="overlay vertical-overlay">
       <div id="images-list">

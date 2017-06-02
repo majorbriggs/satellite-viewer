@@ -11,8 +11,9 @@ window.onload=function(){
     }).addTo(map);
 	dateRangeAjax();
     percentageSlider("#clouds-range", "#clouds-amount", 0, 50);
-    percentageSlider("#data-range", "#data-amount", 0, 50);
+    percentageSlider("#data-range", "#data-amount", 0, 100);
 
+    $(document).on('click', '.image-entry', function() {requestImage(this);});
 }
 
 
@@ -55,6 +56,7 @@ function dateRangeAjax()
                   date_min = Date.parse(response.date__min)/1000;
                   date_max = Date.parse(response.date__max)/1000;
     			  dateSlider("#date-range", "#date-amount", date_min, date_max);
+    			  filterWithAjax();
                 }
             }
         }
@@ -141,12 +143,35 @@ function buildImagesList(response){
   var txt = '';
   for (var i=0; i<len; i++){
     imgObject = response[i];
-    txt += '<li><div class="image-entry"><table><tr><td><span class="label">Image ID: </span></td><td><span class="value">'+imgObject.aws_bucket_uri+'</span></td></tr>';
+    txt += '<li><div class="image-entry"><table><tr><td><span class="label">Image ID: </span></td><td class="image-id"><span class="value">'+imgObject.aws_bucket_uri+'</span></td></tr>';
     txt += '<tr><td><span class="label">Data:</span></td><td><span class="value">'+imgObject.data_percentage+'%</span></td></tr>';
     txt += '<tr><td><span class="label">Clouds:</span></td><td><span class="value">'+imgObject.clouds_percentage+'%</span></td></tr>';
     txt += '<tr><td><span class="label">Date:</span></td><td><span class="value">'+imgObject.date+'</span></td></tr></table></div></li>';
   }
   var end = "</ul>";
   return start + txt + end;
+}
+
+
+function requestImage(element){
+	image_uri = $(element).find($('.image-id')).text();
+  $.ajax
+      (
+        { processData: false,
+          type: 'GET',
+          url: 'http://localhost:8000/api/image',
+          data:
+            {
+              image_uri: image_uri,
+            },
+          success: function(response)
+            {
+              if (response)
+                {
+                  alert(response);
+                }
+            }
+        }
+      );
 }
 

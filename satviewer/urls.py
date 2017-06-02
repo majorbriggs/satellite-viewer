@@ -19,5 +19,5 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^api/images/', include("viewer.api.urls", namespace='images-api'))
+    url(r'^api/', include("viewer.api.urls", namespace='api')),
 ]

@@ -12,7 +12,7 @@ SOURCE_LANDSAT = 'L8'
 sentinel_bucket_name = 'sentinel-s2-l1c'
 landsat_bucket_name = 'landsat-pds'
 landsat_prefix = 'L8/190/022'
-s2_prefix = 'tiles/34/U/CF/' # prefix for Pomeranian district
+s2_prefix = 'tiles/34/U/CF/'  # prefix for Pomeranian district
 
 s3 = boto3.resource('s3', region_name='eu-central-1')
 sentinel_bucket = s3.Bucket(sentinel_bucket_name)
@@ -20,6 +20,7 @@ landsat_bucket = s3.Bucket(landsat_bucket_name)
 
 client = boto3.client('s3', region_name='eu-central-1',
                       config=botocore.client.Config(signature_version=botocore.UNSIGNED))
+
 
 def get_s2_images_data(prefix=s2_prefix):
 
@@ -40,8 +41,8 @@ def get_s2_images_data(prefix=s2_prefix):
                         data_percentage=tile_info.get('dataCoveragePercentage'),
                         date=tile_info['timestamp'].split('T')[0])
         else:
-            for i in get_s2_images_data(prefix=new_prefix):
-                yield i
+            for obj in get_s2_images_data(prefix=new_prefix):
+                yield obj
 
 
 def get_landsat_images_data(prefix=landsat_prefix):
@@ -63,8 +64,8 @@ def get_landsat_images_data(prefix=landsat_prefix):
                         data_percentage=100.0,
                         date=tile_info['L1_METADATA_FILE']['PRODUCT_METADATA']['DATE_ACQUIRED'])
         else:
-            for i in get_landsat_images_data(prefix=new_prefix):
-                yield i
+            for obj in get_landsat_images_data(prefix=new_prefix):
+                yield obj
 
 
 if __name__ == '__main__':

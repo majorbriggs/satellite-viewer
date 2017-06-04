@@ -10,6 +10,7 @@ QUEUE_NAME_REQUESTED = 'img-requested-queue'
 QUEUE_NAME_DONE = 'img-done-queue'
 QUEUE_NAME_ON_GEOSERVER = 'img-on-geoserver-queue'
 
+
 def get_sqs_queue(queue_name=QUEUE_NAME_REQUESTED, region_name=REGION_NAME):
     sqs = boto3.resource('sqs', region_name=region_name)
     try:
@@ -22,7 +23,10 @@ def get_sqs_queue(queue_name=QUEUE_NAME_REQUESTED, region_name=REGION_NAME):
             raise e
     return queue
 
-def send_message(message_content, queue, message_attributes={}):
+
+def send_message(message_content, queue, message_attributes=None):
+    if message_attributes is None:
+        message_attributes = {}
     return queue.send_message(MessageBody=message_content, MessageAttributes=message_attributes)
 
 
@@ -34,6 +38,7 @@ def send_image_requested(img_bucket_uri):
 def send_image_done(img_bucket_uri):
     queue = get_sqs_queue(queue_name=QUEUE_NAME_DONE, region_name=REGION_NAME)
     return send_message(queue=queue, message_content=img_bucket_uri)
+
 
 def send_image_on_geoserver(img_id):
     queue = get_sqs_queue(queue_name=QUEUE_NAME_ON_GEOSERVER, region_name=REGION_NAME)

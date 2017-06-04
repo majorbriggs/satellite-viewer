@@ -6,7 +6,8 @@ class SatelliteImageSerializer(ModelSerializer):
 
     class Meta:
         model = SatelliteImage
-        fields = ['aws_bucket_uri',
+        fields = ['source',
+                  'aws_bucket_uri',
                   'data_percentage',
                   'clouds_percentage',
                   'date']

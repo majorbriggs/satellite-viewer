@@ -156,7 +156,9 @@ function buildImagesList(response){
   var txt = '';
   for (var i=0; i<len; i++){
     imgObject = response[i];
-    txt += '<li><div class="image-entry"><table><tr><td><span class="label">Image ID: </span></td><td class="image-id"><span class="value">'+imgObject.aws_bucket_uri+'</span></td></tr>';
+    txt += '<li><div class="image-entry"><table>';
+    txt += '<tr><td><span class="label">Source: </span></td><td class="value"><span class="value">'+imgObject.source+'</span></td></tr>';
+    txt += '<tr><td><span class="label">Image ID: </span></td><td class="image-id"><span class="value">'+imgObject.aws_bucket_uri+'</span></td></tr>';
     txt += '<tr><td><span class="label">Data:</span></td><td><span class="value">'+imgObject.data_percentage+'%</span></td></tr>';
     txt += '<tr><td><span class="label">Clouds:</span></td><td><span class="value">'+imgObject.clouds_percentage+'%</span></td></tr>';
     txt += '<tr><td><span class="label">Date:</span></td><td><span class="value">'+imgObject.date+'</span></td></tr></table></div></li>';

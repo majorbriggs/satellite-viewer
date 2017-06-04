@@ -4,6 +4,7 @@ from viewer.aws.aws_helpers import Image
 
 
 class SatelliteImage(Model):
+    source = TextField(default="L8")
 
     aws_bucket_uri = TextField()
 
@@ -22,6 +23,7 @@ class SatelliteImage(Model):
 
 def add_image(image: Image):
         i = SatelliteImage()
+        i.source = image.source
         i.aws_bucket_uri = image.aws_bucket_uri
         i.data_percentage = image.data_percentage
         i.clouds_percentage = image.clouds_percentage

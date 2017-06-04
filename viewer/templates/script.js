@@ -9,13 +9,26 @@ window.onload=function(){
     id: 'mapbox.satellite',
     accessToken: 'pk.eyJ1IjoibWFqb3JicmlnZ3MiLCJhIjoiY2l2dHozbXdrMDA0dzJ6bHVqMWV3aHhoYyJ9.LksFMcYK2pG_TAEtn7J9Gg'
     }).addTo(map);
-	dateRangeAjax();
+
+    layer = getWMSLayer();
+
+    layer.addTo(map);
+
+	  dateRangeAjax();
     percentageSlider("#clouds-range", "#clouds-amount", 0, 50);
     percentageSlider("#data-range", "#data-amount", 0, 100);
 
     $(document).on('click', '.image-entry', function() {requestImage(this);});
 }
 
+
+function getWMSLayer(){
+    return L.tileLayer.wms("http://ec2-52-57-36-143.eu-central-1.compute.amazonaws.com:8080/geoserver/sentinel/wms", {
+    layers: 'sentinel:file',
+    format: 'image/png',
+    transparent: true,
+});
+}
 
 function percentageSlider(slider_id, amount_id, start_min, start_max)
 {
@@ -157,9 +170,10 @@ function requestImage(element){
 	image_uri = $(element).find($('.image-id')).text();
   $.ajax
       (
-        { processData: false,
+        {
           type: 'GET',
           url: 'http://localhost:8000/api/image',
+          dataType: 'json',
           data:
             {
               image_uri: image_uri,
@@ -168,7 +182,7 @@ function requestImage(element){
             {
               if (response)
                 {
-                  alert(response);
+                  alert("Queue msg id: " + response.message_id);
                 }
             }
         }

@@ -1,12 +1,12 @@
+from django.db.models import Min, Max
+from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import status
 
+from aws.sqs import send_image_requested
 from viewer.models import SatelliteImage, add_sentinel_images, add_landsat_images
 from .serializers import SatelliteImageSerializer
-from django.db.models import Min, Max
-from viewer.aws.sqs import send_message, get_sqs_queue, QUEUE_NAME
 
 
 class ImagesListAPIView(ListAPIView):
@@ -39,7 +39,7 @@ class SingleImageView(APIView):
     def get(self, request, format=None):
         image_uri = request.query_params.get('image_uri')
         if image_uri:
-            message_id = send_message(message_content=image_uri)
+            message_id = send_image_requested(img_bucket_uri=image_uri)
             return Response({"message_id":message_id["MessageId"]})
         return Response({"message_id":"Bad Request"})
 

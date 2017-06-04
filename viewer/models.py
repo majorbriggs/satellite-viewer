@@ -1,6 +1,7 @@
 from django.db.models import Model, TextField, FloatField, DateField
-from viewer.aws.aws_helpers import get_s2_images_data, get_landsat_images_data
-from viewer.aws.aws_helpers import Image
+
+from aws.aws_helpers import Image
+from aws.aws_helpers import get_s2_images_data, get_landsat_images_data
 
 
 class SatelliteImage(Model):
@@ -36,10 +37,8 @@ def add_sentinel_images():
         print("Adding image {}".format(image.aws_bucket_uri))
         add_image(image)
 
+
 def add_landsat_images():
     for image in get_landsat_images_data():
         print("Adding Landsat image {}".format(image.aws_bucket_uri))
         add_image(image)
-
-if __name__ == "__main__":
-    add_sentinel_images()

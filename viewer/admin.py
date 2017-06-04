@@ -6,4 +6,4 @@ from viewer.models import SatelliteImage
 
 @admin.register(SatelliteImage)
 class SatelliteImage(admin.ModelAdmin):
-    list_display = ('source', 'aws_bucket_uri', 'clouds_percentage', 'data_percentage', 'date')
+    list_display = ('aws_bucket_uri', 'source', 'clouds_percentage', 'data_percentage', 'date')

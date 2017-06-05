@@ -24,7 +24,8 @@ def process_job(job: JobMessage):
     calculator.get_files()
     filepath = calculator.save_result()
     upload_to_s3(bucket_name=const.OUTPUT_BUCKET, key=job.key, filepath=filepath)
-    send_image_done(job)
+    message_id = send_image_done(job)
+    print("Message image-done sent: {}".format(message_id))
     print("Image {} processed".format(job.img_uri))
 
 

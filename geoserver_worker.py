@@ -23,7 +23,9 @@ def process_job(job: JobMessage):
     print("Received message {}".format(job.key))
     download_from_s3(bucket_name=OUTPUT_BUCKET, key=job.key, filepath=job.key)
     add_new_image(job)
-    send_image_on_geoserver(job)
+    message_id = send_image_on_geoserver(job)
+    print("Message image-on-geoserver sent: {}".format(message_id))
+
 
 
 if __name__ == "__main__":

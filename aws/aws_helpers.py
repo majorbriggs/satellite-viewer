@@ -73,11 +73,12 @@ def get_landsat_images_data(prefix=landsat_prefix):
 
 def download_sentinel_bands(bands, dir_uri, output_dir='.'):
     for band in bands:
-        print()
         band_filename = "B{:>02}.jp2".format(band)
         file_key = dir_uri + band_filename
         output_filepath = os.path.join(output_dir, band_filename)
         client.download_file(sentinel_bucket_name, file_key, output_filepath)
+        print("Band {} downloaded".format(band_filename))
+
 
 def download_landsat_bands(bands, dir_uri, output_dir='.'):
     for band in bands:

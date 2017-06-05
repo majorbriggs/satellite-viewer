@@ -61,7 +61,7 @@ def add_layer(ws, cs, name, title):
 
 def add_new_image(job: JobMessage):
     img_id = job.key.replace(".tiff", '')
-    add_coverage_store(WORKSPACE, img_id, path='{storage}/{key}'.format(storage=const.GEOSERVER_STORAGE, key=job.key))
+    add_coverage_store(WORKSPACE, img_id, path='{storage}{key}'.format(storage=const.GEOSERVER_STORAGE, key=job.key))
     add_layer(ws=WORKSPACE, cs=img_id, name=img_id, title=img_id)
 
 

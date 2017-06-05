@@ -16,8 +16,10 @@ Including another URLconf
 from rest_framework.templatetags import rest_framework
 from django.conf.urls import url, include
 from django.contrib import admin
+from viewer.views import home_page
 
 urlpatterns = [
+    url(r'^$', home_page),
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include("viewer.api.urls", namespace='api')),
 ]

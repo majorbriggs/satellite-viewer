@@ -23,7 +23,7 @@ window.onload=function(){
 
 
 function getWMSLayer(){
-    return L.tileLayer.wms("http://localhost:8080/geoserver/sat-viewer/wms", {
+    return L.tileLayer.wms("http://ec2-52-57-36-143.eu-central-1.compute.amazonaws.com:8080/geoserver/sat-viewer/wms", {
     layers: 'sat-viewer:L8190022LC81900222016146LGN00_rgb',
     format: 'image/png',
     transparent: true,
@@ -59,7 +59,7 @@ function dateRangeAjax()
       (
         {
           type: 'GET',
-          url: 'http://localhost:8000/api/images/dates',
+          url: 'http://ec2-35-158-91-237.eu-central-1.compute.amazonaws.com:8000/api/images/dates',
           dataType: 'json',
           success: function(response)
             {
@@ -84,7 +84,7 @@ function filterWithAjax()
       (
         {
           type: 'GET',
-          url: 'http://localhost:8000/api/images/',
+          url: 'http://ec2-35-158-91-237.eu-central-1.compute.amazonaws.com:8000/api/images/',
           dataType: 'json',
           data:
             {
@@ -174,7 +174,7 @@ function requestImage(element){
       (
         {
           type: 'GET',
-          url: 'http://localhost:8000/api/image',
+          url: 'http://ec2-35-158-91-237.eu-central-1.compute.amazonaws.com:8000/api/image',
           dataType: 'json',
           data:
             {

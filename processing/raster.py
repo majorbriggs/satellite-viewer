@@ -6,6 +6,11 @@ import os
 import rasterio
 import numpy as np
 
+import const
+
+from aws.aws_helpers import download_landsat_bands, download_sentinel_bands
+from aws.sqs import JobMessage
+
 
 class Bands(IntEnum):
     B = 2
@@ -17,15 +22,33 @@ class Bands(IntEnum):
 class ImageCalculator:
     RGB_suffix = 'rgb'
     NDVI_suffix = 'ndvi'
+    NDVI_bands = None
+    RGB_bands = None
     # this should be calculated dynamically
     display_min = 0
     display_max = np.iinfo(np.uint16).max
 
-    def __init__(self, filename_template, default_width, default_height):
+    def __init__(self, image_uri, filename_template, default_width, default_height, process):
         self.filename_template = filename_template
         self.input_dir = "."
         self.default_width=default_width
         self.default_height=default_height
+        self.process = process
+        self.image_uri = image_uri
+        self.output_filepath=self.process + '.tiff'
+
+
+    @staticmethod
+    def for_job(job: JobMessage):
+        if job.source == const.LANDSAT:
+            return LandsatCalculator(process=job.process, image_uri=job.img_uri)
+        elif job.source == const.SENTINEL:
+            return SentinelCalculator(process=job.process, image_uri=job.img_uri)
+        else:
+            raise RuntimeError("Message has a wrong source type {}".format(job.source))
+
+    def get_files(self):
+        raise NotImplementedError
 
     @contextmanager
     def get_band(self, band_number):
@@ -59,7 +82,17 @@ class ImageCalculator:
         result = np.take(lut, image)
         return result
 
+
+    def save_result(self, x0=0, y0=0, x1=None, y1=None):
+        output_filepath = self.process+".tiff"
+        if self.process == const.NDVI:
+            return self.save_ndvi(output_filepath, x0, y0, x1, y1)
+        elif self.process == const.RGB:
+            return self.save_rgb(output_filepath, x0, y0, x1, y1)
+
+
     def save_rgb(self, output_filepath, x0=0, y0=0, x1=None, y1=None):
+
         if x1 is None:
             x1 = self.default_width
         if y1 is None:
@@ -107,17 +140,27 @@ class ImageCalculator:
 class LandsatCalculator(ImageCalculator):
     display_max = 10000
     display_min = 6000
+    bands = {const.NDVI: [2, 5],
+             const.RGB: [4, 3, 2]}
 
-    def __init__(self):
-        super().__init__(filename_template='B{}.TIF', default_width=8131, default_height=8221)
+    def __init__(self, process, image_uri):
+        super().__init__(process=process, image_uri=image_uri, filename_template='B{}.TIF', default_width=8131, default_height=8221)
 
+    def get_files(self):
+        download_landsat_bands(bands=self.bands[self.process], dir_uri=self.image_uri)
 
 class SentinelCalculator(ImageCalculator):
     display_min = 1000
     display_max = 5000
+    bands = {const.NDVI: [2, 8],
+          const.RGB: [4, 3, 2]}
 
-    def __init__(self):
-        super().__init__(filename_template='B{:0>2}.jp2', default_width=10980, default_height=10980)
+    def __init__(self, process, image_uri):
+        super().__init__(process=process, image_uri=image_uri, filename_template='B{:0>2}.jp2', default_width=10980, default_height=10980)
+
+    def get_files(self):
+        download_sentinel_bands(bands=self.bands[self.process], dir_uri=self.image_uri)
+
 
 
 

@@ -23,8 +23,8 @@ window.onload=function(){
 
 
 function getWMSLayer(){
-    return L.tileLayer.wms("http://ec2-52-57-36-143.eu-central-1.compute.amazonaws.com:8080/geoserver/sentinel/wms", {
-    layers: 'sentinel:file',
+    return L.tileLayer.wms("http://localhost:8080/geoserver/sat-viewer/wms", {
+    layers: 'sat-viewer:L8190022LC81900222016146LGN00_rgb',
     format: 'image/png',
     transparent: true,
 });

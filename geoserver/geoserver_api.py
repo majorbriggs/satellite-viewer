@@ -2,8 +2,10 @@ import requests
 from requests.auth import HTTPBasicAuth
 import os
 
-GEOSERVER_REST_URL = 'http://ec2-52-57-36-143.eu-central-1.compute.amazonaws.com:8080/geoserver/rest/'
-WORKSPACE = "sat-viewer"
+import const
+from const import WORKSPACE, GEOSERVER_REST_URL
+from aws.sqs import JobMessage
+
 
 auth = HTTPBasicAuth(username=os.getenv('GEOSERVER_USERNAME'), password=os.getenv('GEOSERVER_PASSWORD'))
 
@@ -57,8 +59,9 @@ def add_layer(ws, cs, name, title):
         print("Connection to Geoserver failed on creation of Layer.")
 
 
-def add_new_image(img_id):
-    add_coverage_store(WORKSPACE, img_id, path='file:///home/ubuntu/{img_id}'.format(img_id=img_id))
+def add_new_image(job: JobMessage):
+    img_id = job.key.replace(".tiff", '')
+    add_coverage_store(WORKSPACE, img_id, path='{storage}/{key}'.format(storage=const.GEOSERVER_STORAGE, key=job.key))
     add_layer(ws=WORKSPACE, cs=img_id, name=img_id, title=img_id)
 
 

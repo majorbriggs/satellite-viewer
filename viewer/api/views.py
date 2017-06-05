@@ -4,10 +4,10 @@ from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from aws.sqs import send_image_requested
+from aws.sqs import send_image_requested, JobMessage
 from viewer.models import SatelliteImage, add_sentinel_images, add_landsat_images
 from .serializers import SatelliteImageSerializer
-
+import const
 
 class ImagesListAPIView(ListAPIView):
     serializer_class = SatelliteImageSerializer
@@ -39,7 +39,9 @@ class SingleImageView(APIView):
     def get(self, request, format=None):
         image_uri = request.query_params.get('image_uri')
         if image_uri:
-            message_id = send_image_requested(img_bucket_uri=image_uri)
+            source = const.SENTINEL if image_uri.startswith('tiles') else const.LANDSAT
+            message = JobMessage(source=source, img_uri=image_uri, process=const.RGB)
+            message_id = send_image_requested(message)
             return Response({"message_id":message_id["MessageId"]})
         return Response({"message_id":"Bad Request"})
 

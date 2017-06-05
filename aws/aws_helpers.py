@@ -1,8 +1,12 @@
+import os
+
 import boto3
 import botocore
 import json
 from collections import namedtuple
 
+import const
+from aws.sqs import JobMessage
 
 Image = namedtuple("AWSImageData", ['source', 'aws_bucket_uri', 'clouds_percentage', 'data_percentage', 'date'])
 
@@ -23,7 +27,6 @@ client = boto3.client('s3', region_name='eu-central-1',
 
 
 def get_s2_images_data(prefix=s2_prefix):
-
     result = client.list_objects(Bucket=sentinel_bucket_name,
                                  Prefix=prefix,
                                  Delimiter='/'
@@ -68,6 +71,39 @@ def get_landsat_images_data(prefix=landsat_prefix):
                 yield obj
 
 
+def download_sentinel_bands(bands, dir_uri, output_dir='.'):
+    for band in bands:
+        print()
+        band_filename = "B{:>02}.jp2".format(band)
+        file_key = dir_uri + band_filename
+        output_filepath = os.path.join(output_dir, band_filename)
+        client.download_file(sentinel_bucket_name, file_key, output_filepath)
+
+def download_landsat_bands(bands, dir_uri, output_dir='.'):
+    for band in bands:
+        scene_id = dir_uri.strip('/').split('/')[-1]
+        band_filename = scene_id+"_B{}.TIF".format(band)
+        file_key = dir_uri + band_filename
+        output_filepath = os.path.join(output_dir, "B{}.TIF".format(band))
+        client.download_file(landsat_bucket_name, file_key, output_filepath)
+
+
+def upload_to_s3(bucket_name, key, filepath):
+    print("Uploading {} to S3 bucket {} as {}".format(filepath, bucket_name, key))
+    with open(filepath, 'rb') as f:
+        s3.Bucket(bucket_name).put_object(Key=key, Body=f)
+    print("Upload finished")
+
+
+def download_from_s3(bucket_name, key, filepath):
+    print("Downloading from S3 bucket {} under key {} saving as {}".format(bucket_name, key, filepath))
+    try:
+        s3.Bucket(bucket_name).download_file(Key=key, Filename=filepath)
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
 if __name__ == '__main__':
-    for i in get_landsat_images_data():
-        print(i.aws_bucket_uri)
+    pass

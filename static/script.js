@@ -22,9 +22,12 @@ window.onload=function(){
 }
 
 
+var geoserverLayer = 'sat-viewer:rgb'
+
+
 function getWMSLayer(){
     return L.tileLayer.wms("http://ec2-52-57-36-143.eu-central-1.compute.amazonaws.com:8080/geoserver/sat-viewer/wms", {
-    layers: 'sat-viewer:L8190022LC81900222016146LGN00_rgb',
+    layers: geoserverLayer,
     format: 'image/png',
     transparent: true,
 });
@@ -75,7 +78,6 @@ function dateRangeAjax()
         }
       );
 }
-
 
 
 function filterWithAjax()
@@ -185,6 +187,7 @@ function requestImage(element){
               if (response)
                 {
                   alert("Queue msg id: " + response.message_id);
+
                 }
             }
         }

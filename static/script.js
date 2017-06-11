@@ -62,7 +62,7 @@ function dateRangeAjax()
       (
         {
           type: 'GET',
-          url: 'http://ec2-35-158-91-237.eu-central-1.compute.amazonaws.com:8000/api/images/dates',
+          url: '/api/images/dates',
           dataType: 'json',
           success: function(response)
             {
@@ -86,7 +86,7 @@ function filterWithAjax()
       (
         {
           type: 'GET',
-          url: 'http://ec2-35-158-91-237.eu-central-1.compute.amazonaws.com:8000/api/images/',
+          url: '/api/images/',
           dataType: 'json',
           data:
             {
@@ -176,7 +176,7 @@ function requestImage(element){
       (
         {
           type: 'GET',
-          url: 'http://ec2-35-158-91-237.eu-central-1.compute.amazonaws.com:8000/api/image',
+          url: '/api/image',
           dataType: 'json',
           data:
             {

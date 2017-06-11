@@ -27,8 +27,7 @@ DEBUG = True
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-ALLOWED_HOSTS = ['ec2-35-158-91-237.eu-central-1.compute.amazonaws.com',
-                 'localhost']
+ALLOWED_HOSTS = ['satviewer-dev.eu-central-1.elasticbeanstalk.com']
 
 APPEND_SLASH = False
 

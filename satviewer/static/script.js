@@ -1,20 +1,9 @@
 
 window.onload=function(){
-    var map = L.map('map', {
-          zoomControl: false
-    }).setView([54.366667, 18.633333], 9);
-    L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-    attribution: 'Imagery © <a href="http://mapbox.com">Mapbox</a>',
-    maxZoom: 17,
-    id: 'mapbox.satellite',
-    accessToken: 'pk.eyJ1IjoibWFqb3JicmlnZ3MiLCJhIjoiY2l2dHozbXdrMDA0dzJ6bHVqMWV3aHhoYyJ9.LksFMcYK2pG_TAEtn7J9Gg'
-    }).addTo(map);
+    setupMap();
 
-    layer = getWMSLayer();
 
-    layer.addTo(map);
-
-	  dateRangeAjax();
+	dateRangeAjax();
     percentageSlider("#clouds-range", "#clouds-amount", 0, 50);
     percentageSlider("#data-range", "#data-amount", 0, 100);
 
@@ -22,12 +11,70 @@ window.onload=function(){
 }
 
 
-var geoserverLayer = 'sat-viewer:rgb'
+var geoserverTempLayer = 'sat-viewer:surface_temp';
+var geoserverNdviLayer = 'sat-viewer:ndvi';
+var temperatureStyle = 'temperature';
+var ndviStyle = 'ndvi';
 
 
-function getWMSLayer(){
-    return L.tileLayer.wms("http://ec2-52-57-36-143.eu-central-1.compute.amazonaws.com:8080/geoserver/sat-viewer/wms", {
+function setupMap()
+{
+
+
+    var earthLayer = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+        attribution: 'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+        maxZoom: 17,
+        id: 'mapbox.satellite',
+        accessToken: 'pk.eyJ1IjoibWFqb3JicmlnZ3MiLCJhIjoiY2l2dHozbXdrMDA0dzJ6bHVqMWV3aHhoYyJ9.LksFMcYK2pG_TAEtn7J9Gg'
+        });
+
+    var tsLayer = getWMSLayer(geoserverTempLayer, temperatureStyle);
+    var ndviLayer = getWMSLayer(geoserverNdviLayer, ndviStyle);
+
+
+    var baseMaps = {
+        "Earth": earthLayer,
+    };
+
+    var overlayMaps = {
+        "VI": ndviLayer,
+        "Ts": tsLayer,
+    };
+
+    var map = L.map('map', {
+        center: [54.366667, 18.633333],
+        zoom: 10,
+        layers: [earthLayer]
+    });
+
+    addControlPlaceholders(map);
+
+    var control = L.control.layers(baseMaps, overlayMaps);
+    control.setPosition('verticalcenterright');
+    control.addTo(map);
+
+
+}
+
+function addControlPlaceholders(map) {
+    var corners = map._controlCorners,
+        l = 'leaflet-',
+        container = map._controlContainer;
+
+    function createCorner(vSide, hSide) {
+        var className = l + vSide + ' ' + l + hSide;
+
+        corners[vSide + hSide] = L.DomUtil.create('div', className, container);
+    }
+
+    createCorner('verticalcenter', 'left');
+    createCorner('verticalcenter', 'right');
+}
+
+function getWMSLayer(geoserverLayer, style){
+    return L.tileLayer.wms(geoServerUrl + "sat-viewer/wms", {
     layers: geoserverLayer,
+    styles: style,
     format: 'image/png',
     transparent: true,
 });

@@ -132,3 +132,10 @@ font-size: 20px;
 float: left;
 font-weight: bold;
 }
+
+
+.leaflet-verticalcenter {
+    position: absolute;
+    bottom: 100;
+    padding-top: 10px;
+}

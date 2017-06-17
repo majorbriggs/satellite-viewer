@@ -15,4 +15,4 @@ psycopg2==2.7.1
 
 # processing worker
 numpy==1.12.1
-# rasterio==0.36.0
+rasterio==0.36.0

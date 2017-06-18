@@ -2,8 +2,7 @@
 window.onload=function(){
     setupMap();
 
-
-	dateRangeAjax();
+	  dateRangeAjax();
     percentageSlider("#clouds-range", "#clouds-amount", 0, 50);
     percentageSlider("#data-range", "#data-amount", 0, 100);
 
@@ -44,6 +43,7 @@ function setupMap()
     var map = L.map('map', {
         center: [54.366667, 18.633333],
         zoom: 10,
+        zoomControl:false,
         layers: [earthLayer]
     });
 
@@ -53,7 +53,55 @@ function setupMap()
     control.setPosition('verticalcenterright');
     control.addTo(map);
 
+    drawnItems = L.featureGroup();
+    map.addLayer(drawnItems);
+    
+    var myStyle = {
+        "color": "#000000",
+        "weight": 2,
+        "opacity": 0.65,
+        "dashArray": '5, 5',
+    };
 
+    var drawControlAdd = new L.Control.Draw({
+        draw: {
+            polygon: false,
+            circle: false,
+            polyline: false,
+            marker: false,
+            rectangle: {shapeOptions: myStyle},
+        },
+        position: 'bottomright'
+    });
+
+
+
+    var drawControlEditOnly = new L.Control.Draw({
+        edit: {
+            featureGroup: drawnItems
+        },
+        draw: false,
+        position: 'bottomright',
+    });
+
+    map.addControl(drawControlAdd);
+
+    map.on(L.Draw.Event.CREATED, function (e) {
+        var layer = e.layer;
+        layer.addTo(drawnItems);
+        drawControlAdd.remove();
+        drawControlEditOnly.addTo(map)
+    });
+
+    map.on(L.Draw.Event.DELETED, function(e) {
+        check =  Object.keys(drawnItems._layers).length;
+
+        if (check === 0){
+            drawControlEditOnly.remove();
+            drawControlAdd.addTo(map);
+        };
+
+    });
 }
 
 function addControlPlaceholders(map) {

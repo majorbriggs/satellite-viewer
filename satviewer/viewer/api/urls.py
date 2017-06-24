@@ -5,7 +5,8 @@ from viewer.api.views import (
     DateRangeView,
     SingleImageView,
     AddLandsatImagesView,
-    AddSentinelImagesView)
+    AddSentinelImagesView,
+    WindowedTSVI)
 
 urlpatterns = [
     url(r'images/$', ImagesListAPIView.as_view(), name='images-list'),
@@ -13,6 +14,6 @@ urlpatterns = [
     url(r'image$', SingleImageView.as_view(), name='get-image'),
     url(r'images/add/sentinel$', AddSentinelImagesView.as_view(), name='add-images-sentinel'),
     url(r'images/add/landsat$', AddLandsatImagesView.as_view(), name='add-images-landsat'),
-
+    url(r'tsvi$', WindowedTSVI.as_view(), name='tsvi')
 ]
 

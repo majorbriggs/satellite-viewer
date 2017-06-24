@@ -14,7 +14,7 @@ var geoserverTempLayer = 'sat-viewer:surface_temp';
 var geoserverNdviLayer = 'sat-viewer:ndvi';
 var temperatureStyle = 'temperature';
 var ndviStyle = 'ndvi';
-
+var dataJson = "";
 
 function setupMap()
 {
@@ -61,8 +61,7 @@ function setupMap()
         "weight": 2,
         "opacity": 0.65,
         "dashArray": '5, 5',
-    };
-
+    };  
     var drawControlAdd = new L.Control.Draw({
         draw: {
             polygon: false,
@@ -91,6 +90,11 @@ function setupMap()
         layer.addTo(drawnItems);
         drawControlAdd.remove();
         drawControlEditOnly.addTo(map)
+        windowAjax(layer);
+    });
+
+    map.on(L.Draw.Event.EDITED, function (e) {
+      windowAjax(e.layers._layers[Object.keys(e.layers._layers)[0]]);
     });
 
     map.on(L.Draw.Event.DELETED, function(e) {
@@ -102,6 +106,33 @@ function setupMap()
         };
 
     });
+}
+
+function windowAjax(layer)
+{
+  var NE_lat = layer._bounds._northEast.lat;
+  var NE_lng = layer._bounds._northEast.lng;
+  var SW_lat = layer._bounds._southWest.lat;
+  var SW_lng = layer._bounds._southWest.lng;
+  $.ajax
+      (
+        {
+          type: 'GET',
+          url: 'api/tsvi',
+          dataType: "json",
+          data:
+            {
+              neLat: NE_lat,
+              neLng: NE_lng,
+              swLat: SW_lat,
+              swLng: SW_lng
+            },
+          success: function(response)
+            {
+              dataJson = response;
+            }
+        }
+      );
 }
 
 function addControlPlaceholders(map) {

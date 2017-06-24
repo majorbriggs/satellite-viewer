@@ -7,7 +7,9 @@
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
-    
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
     
@@ -29,7 +31,7 @@
     <script type="text/javascript">
         geoServerUrl = "{{ geoserver_url }}"
     </script>
-    <script type='text/javascript' src='{% static "script.js" %}'></script>
+
 
 </head>
 
@@ -66,14 +68,33 @@
     <div class="footer">
 
     <div class="overlay vertical-overlay">
+              <button id="myBtn" >Open Modal</button>
+
       <div id="images-list">
         
       </div>
         
       </div>
       </div>
+
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+
+    <!-- Modal content -->
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <div id="chart_div"></div>
+    </div>
+
+    </div> 
     </div>    
     <div id="map"></div>
+    <!-- Trigger/Open The Modal -->
+    
+
+    <script type='text/javascript' src='{% static "script.js" %}'></script>
+    <script type="text/javascript" src='{% static "scatter.js" %}'></script>
 </body>
 
 </html>

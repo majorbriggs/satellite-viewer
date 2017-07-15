@@ -1,0 +1,9 @@
+1. modify sudo nano /etc/apache2/sites-available/000-default.conf
+
+2. chmod 664 ~/myproject/db.sqlite3
+
+3. sudo chown :www-data ~/myproject/db.sqlite3
+
+4. sudo chown :www-data ~/myproject
+
+5. sudo service apache2 restart

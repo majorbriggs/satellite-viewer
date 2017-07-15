@@ -41,9 +41,9 @@ google.charts.load('current', {'packages':['corechart']});
        var dataTable = new google.visualization.arrayToDataTable(dataJson)
 
        var options = {
-         title: 'NDVI vs LST scatterplot',
-         hAxis: {title: 'LST', minValue: 20, maxValue: 25},
-         vAxis: {title: 'NDVI', minValue: 0, maxValue: 0.5},
+         title: 'Ts / VI scatterplot',
+         vAxis: {title: 'LST', minValue: 20, maxValue: 25},
+         hAxis: {title: 'NDVI', minValue: 0, maxValue: 0.5},
 
          legend: 'none',
          pointSize: 1,

@@ -136,7 +136,6 @@ class ImageCalculator:
         else:
             raise FileNotFoundError("NDVI processing failed. {} not found".format(output_filepath))
 
-
 class LandsatCalculator(ImageCalculator):
     display_max = 10000
     display_min = 6000
@@ -160,8 +159,6 @@ class SentinelCalculator(ImageCalculator):
 
     def get_files(self):
         download_sentinel_bands(bands=self.bands[self.process], dir_uri=self.image_uri)
-
-
 
 
 def add_overviews(filepath, method='average', levels=None):

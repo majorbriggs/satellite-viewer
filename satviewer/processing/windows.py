@@ -37,13 +37,12 @@ class LngLatWindow:
         window = ((row_start, row_stop), (col_start, col_stop))
         return window
 
-def get_tsvi_dict(neLng, neLat, swLng, swLat):
+def get_tsvi(neLng, neLat, swLng, swLat):
     with rasterio.open(TS_FILE) as ts_src, rasterio.open(NDVI_FILE) as ndvi_src:
         lnglatWin = LngLatWindow(ts_src, north_east=LngLat(lng=neLng, lat=neLat),
                          south_west=LngLat(lng=swLng, lat=swLat))
         raster_window = lnglatWin.get_rasterio_window()
         ndvi_points = ndvi_src.read(1, window=raster_window)
         ts_points = ts_src.read(1, window=raster_window)
-        points = zip(ts_points.flatten().tolist(),
-                  ndvi_points.flatten().tolist())
+        points = zip(ndvi_points.flatten().tolist(), ts_points.flatten().tolist())
         return points

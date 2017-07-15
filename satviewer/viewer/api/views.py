@@ -8,7 +8,7 @@ from aws.sqs import send_image_requested, JobMessage
 from viewer.models import SatelliteImage, add_sentinel_images, add_landsat_images
 from .serializers import SatelliteImageSerializer
 import const
-from processing.windows import get_tsvi_dict
+from processing.windows import get_tsvi
 
 class ImagesListAPIView(ListAPIView):
     serializer_class = SatelliteImageSerializer
@@ -68,6 +68,6 @@ class WindowedTSVI(APIView):
         data = request.query_params
         neLat, neLng, swLat, swLng = [float(i) for i in [data['neLat'], data['neLng'], data['swLat'], data['swLng']]]
 
-        tsvi_rows = get_tsvi_dict(neLat=neLat, neLng=neLng, swLat=swLat, swLng=swLng)
-        response_dict = [["TS", "NDVI"], *tsvi_rows]
+        tsvi_rows = get_tsvi(neLat=neLat, neLng=neLng, swLat=swLat, swLng=swLng)
+        response_dict = [["NDVI", "TS"], *tsvi_rows]
         return Response(data=response_dict, status=status.HTTP_200_OK)

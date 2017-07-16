@@ -6,8 +6,6 @@ import rasterio.transform as rtrans
 from affine import Affine
 import os
 
-NDVI_FILE = os.path.join(os.path.dirname(__file__), 'my_ndvi.tif')
-TS_FILE = os.path.join(os.path.dirname(__file__), "temp.tif")
 
 LngLat = namedtuple("LngLat", ['lng', 'lat'])
 
@@ -40,7 +38,7 @@ class LngLatWindow:
 def get_tsvi(dataset_path, neLng, neLat, swLng, swLat):
     ts_file = dataset_path + "_TEMP"
     ndvi_file = dataset_path + "_NDVI"
-    with rasterio.open(TS_FILE) as ts_src, rasterio.open(NDVI_FILE) as ndvi_src:
+    with rasterio.open(ts_file) as ts_src, rasterio.open(ndvi_file) as ndvi_src:
         lnglatWin = LngLatWindow(ts_src, north_east=LngLat(lng=neLng, lat=neLat),
                          south_west=LngLat(lng=swLng, lat=swLat))
         raster_window = lnglatWin.get_rasterio_window()

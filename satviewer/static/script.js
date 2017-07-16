@@ -1,4 +1,3 @@
-
 window.onload=function(){
     setupMap();
 
@@ -10,11 +9,14 @@ window.onload=function(){
 }
 
 
-var geoserverTempLayer = 'sat-viewer:surface_temp';
-var geoserverNdviLayer = 'sat-viewer:ndvi';
 var temperatureStyle = 'temperature';
 var ndviStyle = 'ndvi';
 var dataJson = "";
+var WORKSPACE = 'sat-viewer'
+var RGB = 'RGB';
+var NDVI = 'NDVI';
+var TEMP = 'TEMP';
+var currentSceneID = "LC81900222015111LGN00";
 
 function setupMap()
 {
@@ -27,15 +29,17 @@ function setupMap()
         accessToken: 'pk.eyJ1IjoibWFqb3JicmlnZ3MiLCJhIjoiY2l2dHozbXdrMDA0dzJ6bHVqMWV3aHhoYyJ9.LksFMcYK2pG_TAEtn7J9Gg'
         });
 
-    var tsLayer = getWMSLayer(geoserverTempLayer, temperatureStyle);
-    var ndviLayer = getWMSLayer(geoserverNdviLayer, ndviStyle);
-
+    var tsLayer = getWMSLayer(TEMP, temperatureStyle);
+    var ndviLayer = getWMSLayer(NDVI, ndviStyle);
+    var rgbLayer = getWMSLayer(RGB, '');
 
     var baseMaps = {
         "Earth": earthLayer,
+
     };
 
     var overlayMaps = {
+        "RGB": rgbLayer,
         "VI": ndviLayer,
         "Ts": tsLayer,
     };
@@ -150,9 +154,10 @@ function addControlPlaceholders(map) {
     createCorner('verticalcenter', 'right');
 }
 
-function getWMSLayer(geoserverLayer, style){
+function getWMSLayer(type, style){
+    var layer = WORKSPACE + ":" + currentSceneID + "_" + type;
     return L.tileLayer.wms(geoServerUrl + "sat-viewer/wms", {
-    layers: geoserverLayer,
+    layers: layer,
     styles: style,
     format: 'image/png',
     transparent: true,
@@ -297,26 +302,27 @@ function buildImagesList(response){
 
 
 function requestImage(element){
-	image_uri = $(element).find($('.image-id')).text();
-  $.ajax
-      (
-        {
-          type: 'GET',
-          url: '/api/image',
-          dataType: 'json',
-          data:
-            {
-              image_uri: image_uri,
-            },
-          success: function(response)
-            {
-              if (response)
-                {
-                  alert("Queue msg id: " + response.message_id);
+  currentSceneID = $(element).find($('.image-id')).text();
+	// image_uri = $(element).find($('.image-id')).text();
+ //  $.ajax
+ //      (
+ //        {
+ //          type: 'GET',
+ //          url: '/api/image',
+ //          dataType: 'json',
+ //          data:
+ //            {
+ //              image_uri: image_uri,
+ //            },
+ //          success: function(response)
+ //            {
+ //              if (response)
+ //                {
+ //                  alert("Queue msg id: " + response.message_id);
 
-                }
-            }
-        }
-      );
+ //                }
+ //            }
+ //        }
+ //      );
 }
 

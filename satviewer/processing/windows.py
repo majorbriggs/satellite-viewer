@@ -37,7 +37,9 @@ class LngLatWindow:
         window = ((row_start, row_stop), (col_start, col_stop))
         return window
 
-def get_tsvi(neLng, neLat, swLng, swLat):
+def get_tsvi(dataset_path, neLng, neLat, swLng, swLat):
+    ts_file = dataset_path + "_TEMP"
+    ndvi_file = dataset_path + "_NDVI"
     with rasterio.open(TS_FILE) as ts_src, rasterio.open(NDVI_FILE) as ndvi_src:
         lnglatWin = LngLatWindow(ts_src, north_east=LngLat(lng=neLng, lat=neLat),
                          south_west=LngLat(lng=swLng, lat=swLat))

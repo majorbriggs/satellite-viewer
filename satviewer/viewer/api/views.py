@@ -1,3 +1,5 @@
+import os
+
 from django.db.models import Min, Max
 from rest_framework import status
 from rest_framework.generics import ListAPIView
@@ -67,7 +69,8 @@ class WindowedTSVI(APIView):
     def get(self, request, format=None):
         data = request.query_params
         neLat, neLng, swLat, swLng = [float(i) for i in [data['neLat'], data['neLng'], data['swLat'], data['swLng']]]
-
-        tsvi_rows = get_tsvi(neLat=neLat, neLng=neLng, swLat=swLat, swLng=swLng)
+        image_id = data['imageId']
+        dataset_path = os.path.join(const.GEOSERVER_STORAGE, image_id, image_id.split('__')[-1])
+        tsvi_rows = get_tsvi(dataset_path, neLat=neLat, neLng=neLng, swLat=swLat, swLng=swLng)
         response_dict = [["NDVI", "TS"], *tsvi_rows]
         return Response(data=response_dict, status=status.HTTP_200_OK)

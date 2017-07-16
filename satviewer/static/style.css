@@ -146,7 +146,7 @@ font-weight: bold;
 .modal {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
+    z-index: 10000; /* Sit on top */
     left: 0;
     top: 0;
     width: 100%; /* Full width */
@@ -162,7 +162,7 @@ font-weight: bold;
     margin: 15% auto; /* 15% from the top and centered */
     padding: 20px;
     border: 1px solid #888;
-    width: 30%; /* Could be more or less, depending on screen size */
+    width: 800px /* Could be more or less, depending on screen size */
 }
 
 /* The Close Button */
@@ -180,9 +180,25 @@ font-weight: bold;
     cursor: pointer;
 }
 
+#buttons {
+  margin: 0 auto;
+  width: 95%}
+
+#instructions {
+  padding: 20px;
+  color: white;
+  font-size: 25px;
+}
+
+.btn-left {
+  font-size: 20px;
+  width: 180px;
+  margin: 10 10;
+
+}
 
 #myBtn {
-  position: absolute;
-  top: 400px;
-  left: 400px;
+  margin: 20 20 20 20;
+  font-size: 20px;
+  z-index: 10000;
 }

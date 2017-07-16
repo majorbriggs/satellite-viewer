@@ -28,7 +28,8 @@ DEBUG = True
 CORS_ORIGIN_ALLOW_ALL = True
 
 ALLOWED_HOSTS = ['satviewer-dev.eu-central-1.elasticbeanstalk.com',
-                 'satellite-viewer.pl']
+                 'satellite-viewer.pl',
+                 'localhost']
 
 APPEND_SLASH = False
 

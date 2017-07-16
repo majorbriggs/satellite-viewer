@@ -18,20 +18,49 @@ var NDVI = 'NDVI';
 var TEMP = 'TEMP';
 var currentSceneID = "LC81900222015111LGN00";
 
-function setupMap()
-{
-
-
-    var earthLayer = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+var tsLayer = getWMSLayer(currentSceneID, TEMP, temperatureStyle);
+var ndviLayer = getWMSLayer(currentSceneID, NDVI, ndviStyle);
+var rgbLayer = getWMSLayer(currentSceneID, RGB, '');
+var earthLayer = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
         attribution: 'Imagery © <a href="http://mapbox.com">Mapbox</a>',
         maxZoom: 17,
         id: 'mapbox.satellite',
         accessToken: 'pk.eyJ1IjoibWFqb3JicmlnZ3MiLCJhIjoiY2l2dHozbXdrMDA0dzJ6bHVqMWV3aHhoYyJ9.LksFMcYK2pG_TAEtn7J9Gg'
         });
 
-    var tsLayer = getWMSLayer(TEMP, temperatureStyle);
-    var ndviLayer = getWMSLayer(NDVI, ndviStyle);
-    var rgbLayer = getWMSLayer(RGB, '');
+var baseMaps = {
+    "Earth": earthLayer,
+
+};
+
+var overlayMaps = {
+    "RGB": rgbLayer,
+    "VI": ndviLayer,
+    "Ts": tsLayer,
+};
+var map = L.map('map', {
+    center: [54.366667, 18.633333],
+    zoom: 10,
+    zoomControl:false,
+    layers: [earthLayer]
+});
+
+
+var control = L.control.layers(baseMaps, overlayMaps);
+
+
+function getLayerName(sceneID, type){
+    return WORKSPACE + ":" + sceneID + "_" + type;
+
+}
+function updateLayers(){
+    tsLayer.removeFrom(map);
+    ndviLayer.removeFrom(map);
+    rgbLayer.removeFrom(map);
+    alert(currentSceneID);
+    tsLayer = getWMSLayer(currentSceneID, TEMP, temperatureStyle);
+    ndviLayer = getWMSLayer(currentSceneID, NDVI, ndviStyle);
+    rgbLayer = getWMSLayer(currentSceneID, RGB, '');
 
     var baseMaps = {
         "Earth": earthLayer,
@@ -44,22 +73,42 @@ function setupMap()
         "Ts": tsLayer,
     };
 
-    var map = L.map('map', {
-        center: [54.366667, 18.633333],
-        zoom: 10,
-        zoomControl:false,
-        layers: [earthLayer]
-    });
-
-    addControlPlaceholders(map);
-
-    var control = L.control.layers(baseMaps, overlayMaps);
+    control.remove();
+    control = L.control.layers(baseMaps, overlayMaps);
     control.setPosition('verticalcenterright');
     control.addTo(map);
 
+}
+function setupMap()
+{
+
+
+
+
+
+
+    baseMaps = {
+        "Earth": earthLayer,
+
+    };
+
+    overlayMaps = {
+        "RGB": rgbLayer,
+        "VI": ndviLayer,
+        "Ts": tsLayer,
+    };
+
+
+
+    addControlPlaceholders(map);
+    control = L.control.layers(baseMaps, overlayMaps);
+    control.setPosition('verticalcenterright');
+    control.addTo(map);
+
+
     drawnItems = L.featureGroup();
     map.addLayer(drawnItems);
-    
+
     var myStyle = {
         "color": "#000000",
         "weight": 2,
@@ -110,6 +159,7 @@ function setupMap()
         };
 
     });
+    map._onResize();
 }
 
 function windowAjax(layer)
@@ -126,6 +176,7 @@ function windowAjax(layer)
           dataType: "json",
           data:
             {
+              imageId: currentSceneID,
               neLat: NE_lat,
               neLng: NE_lng,
               swLat: SW_lat,
@@ -154,10 +205,9 @@ function addControlPlaceholders(map) {
     createCorner('verticalcenter', 'right');
 }
 
-function getWMSLayer(type, style){
-    var layer = WORKSPACE + ":" + currentSceneID + "_" + type;
+function getWMSLayer(sceneID, type, style){
     return L.tileLayer.wms(geoServerUrl + "sat-viewer/wms", {
-    layers: layer,
+    layers: getLayerName(sceneID, type),
     styles: style,
     format: 'image/png',
     transparent: true,
@@ -303,6 +353,8 @@ function buildImagesList(response){
 
 function requestImage(element){
   currentSceneID = $(element).find($('.image-id')).text();
+  alert(currentSceneID);
+  updateLayers();
 	// image_uri = $(element).find($('.image-id')).text();
  //  $.ajax
  //      (

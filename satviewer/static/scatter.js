@@ -2,7 +2,7 @@
 var modal = document.getElementById('myModal');
 
 // Get the button that opens the modal
-var btn = document.getElementById("myBtn");
+var btn = document.getElementById("btn-show-ts-vi");
 
 // Get the <span> element that closes the modal
 var span = document.getElementsByClassName("close")[0];
@@ -19,7 +19,7 @@ btn.onclick = function() {
 // When the user clicks on <span> (x), close the modal
 span.onclick = function() {
     modal.style.display = "none";
-      $('#map').hide();
+      $('#map').show();
 
 }
 
@@ -42,11 +42,11 @@ google.charts.load('current', {'packages':['corechart']});
 
        var options = {
          title: 'Ts / VI scatterplot',
-         vAxis: {title: 'LST', minValue: 20, maxValue: 25},
-         hAxis: {title: 'NDVI', minValue: 0, maxValue: 0.5},
-
+         vAxis: {title: 'Ts', minValue: 20, maxValue: 25},
+         hAxis: {title: 'VI', minValue: 0, maxValue: 0.5},
          legend: 'none',
          pointSize: 1,
+         height: 400,
 
        };
 

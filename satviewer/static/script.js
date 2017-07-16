@@ -16,7 +16,7 @@ var WORKSPACE = 'sat-viewer'
 var RGB = 'RGB';
 var NDVI = 'NDVI';
 var TEMP = 'TEMP';
-var currentSceneID = "LC81900222015111LGN00";
+var currentSceneID = "";
 
 var tsLayer = getWMSLayer(currentSceneID, TEMP, temperatureStyle);
 var ndviLayer = getWMSLayer(currentSceneID, NDVI, ndviStyle);
@@ -50,7 +50,7 @@ var control = L.control.layers(baseMaps, overlayMaps);
 
 
 function getLayerName(sceneID, type){
-    return WORKSPACE + ":" + sceneID + "_" + type;
+    return WORKSPACE + ":" + sceneID.split('__')[1] + "_" + type;
 
 }
 function updateLayers(){

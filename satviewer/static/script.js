@@ -16,11 +16,14 @@ var WORKSPACE = 'sat-viewer'
 var RGB = 'RGB';
 var NDVI = 'NDVI';
 var TEMP = 'TEMP';
+var stateOfLayers = new Array(true, false, false); 
 var currentSceneID = "";
-
+var selected_image_element = null;
 var tsLayer = getWMSLayer(currentSceneID, TEMP, temperatureStyle);
 var ndviLayer = getWMSLayer(currentSceneID, NDVI, ndviStyle);
 var rgbLayer = getWMSLayer(currentSceneID, RGB, '');
+var tsviSelection = null;
+
 var earthLayer = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
         attribution: 'Imagery © <a href="http://mapbox.com">Mapbox</a>',
         maxZoom: 17,
@@ -35,8 +38,8 @@ var baseMaps = {
 
 var overlayMaps = {
     "RGB": rgbLayer,
-    "VI": ndviLayer,
-    "Ts": tsLayer,
+    "NDVI": ndviLayer,
+    "TS": tsLayer,
 };
 var map = L.map('map', {
     center: [54.366667, 18.633333],
@@ -46,7 +49,40 @@ var map = L.map('map', {
 });
 
 
-var control = L.control.layers(baseMaps, overlayMaps);
+map.on('overlayadd', onOverlayAdd);
+map.on('overlayremove', onOverlayRemove);
+
+
+function onOverlayAdd(e){
+  if (e.name === RGB){
+    stateOfLayers[0] = true;
+  } else if (e.name === NDVI){
+    stateOfLayers[1] = true;
+  } else if (e.name === 'TS'){
+    stateOfLayers[2] = true;
+  } 
+}
+
+function onOverlayRemove(e){
+  if (e.name === RGB){
+    stateOfLayers[0] = false;
+  } else if (e.name === NDVI){
+    stateOfLayers[1] = false;
+  } else if (e.name === 'TS'){
+    stateOfLayers[2] = false;
+  } 
+}
+
+function restoreLayersSelection(){
+  for (var i = 0; i<stateOfLayers.length; i++){
+    if (stateOfLayers[i]){
+      var layerControlElement = document.getElementsByClassName('leaflet-control-layers')[0];
+      layerControlElement.getElementsByTagName('input')[i+1].click();
+    }
+  }
+  
+}
+var control = null;
 
 
 function getLayerName(sceneID, type){
@@ -54,10 +90,11 @@ function getLayerName(sceneID, type){
 
 }
 function updateLayers(){
+    sTemp = stateOfLayers.slice();
     tsLayer.removeFrom(map);
     ndviLayer.removeFrom(map);
     rgbLayer.removeFrom(map);
-    alert(currentSceneID);
+    stateOfLayers = sTemp;
     tsLayer = getWMSLayer(currentSceneID, TEMP, temperatureStyle);
     ndviLayer = getWMSLayer(currentSceneID, NDVI, ndviStyle);
     rgbLayer = getWMSLayer(currentSceneID, RGB, '');
@@ -69,42 +106,32 @@ function updateLayers(){
 
     var overlayMaps = {
         "RGB": rgbLayer,
-        "VI": ndviLayer,
-        "Ts": tsLayer,
+        "NDVI": ndviLayer,
+        "TS": tsLayer,
     };
 
-    control.remove();
-    control = L.control.layers(baseMaps, overlayMaps);
+    if (control !== null){
+      control.remove();
+    }
+    control = L.control.layers(baseMaps, overlayMaps, {collapsed:false});
     control.setPosition('verticalcenterright');
     control.addTo(map);
 
+    restoreLayersSelection();
+    if (tsviSelection != null){
+      windowAjax(tsviSelection);
+    }
+
 }
+
 function setupMap()
 {
 
 
-
-
-
-
-    baseMaps = {
-        "Earth": earthLayer,
-
-    };
-
-    overlayMaps = {
-        "RGB": rgbLayer,
-        "VI": ndviLayer,
-        "Ts": tsLayer,
-    };
-
-
-
     addControlPlaceholders(map);
-    control = L.control.layers(baseMaps, overlayMaps);
-    control.setPosition('verticalcenterright');
-    control.addTo(map);
 
+
+    updateLayers();
 
     drawnItems = L.featureGroup();
     map.addLayer(drawnItems);
@@ -139,15 +166,16 @@ function setupMap()
     map.addControl(drawControlAdd);
 
     map.on(L.Draw.Event.CREATED, function (e) {
-        var layer = e.layer;
-        layer.addTo(drawnItems);
+        tsviSelection = e.layer;
+        tsviSelection.addTo(drawnItems);
         drawControlAdd.remove();
         drawControlEditOnly.addTo(map)
-        windowAjax(layer);
+        windowAjax(tsviSelection);
     });
 
     map.on(L.Draw.Event.EDITED, function (e) {
-      windowAjax(e.layers._layers[Object.keys(e.layers._layers)[0]]);
+      tsviSelection = e.layers._layers[Object.keys(e.layers._layers)[0]];
+      windowAjax(tsviSelection);
     });
 
     map.on(L.Draw.Event.DELETED, function(e) {
@@ -157,6 +185,7 @@ function setupMap()
             drawControlEditOnly.remove();
             drawControlAdd.addTo(map);
         };
+        tsviSelection = null;
 
     });
     map._onResize();
@@ -353,7 +382,11 @@ function buildImagesList(response){
 
 function requestImage(element){
   currentSceneID = $(element).find($('.image-id')).text();
-  alert(currentSceneID);
+  if (selected_image_element !== null){
+    $(selected_image_element).removeClass('image-selected');
+  }
+  selected_image_element = element;
+  $(selected_image_element).addClass('image-selected');
   updateLayers();
 	// image_uri = $(element).find($('.image-id')).text();
  //  $.ajax

@@ -113,7 +113,11 @@ list-style-type: none;
 }
 
 #images-list li:hover {
-background-color: rgba(0,0,0,0.3);
+    background-color: rgba(0,0,0,0.3);
+}
+
+.image-selected {
+    background-color: rgba(0,0,0,0.4);
 }
 
 .image-entry td {

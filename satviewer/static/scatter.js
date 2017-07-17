@@ -9,10 +9,14 @@ var span = document.getElementsByClassName("close")[0];
 
 // When the user clicks on the button, open the modal
 btn.onclick = function() {
-  $('#map').hide();
+  if (tsviSelection == null){
+      alert("Select area for TSVI scatterplot");
+  }
+  else{
+    $('#map').hide();
     modal.style.display = "block";
     loadChart();
-
+}
 
 }
 

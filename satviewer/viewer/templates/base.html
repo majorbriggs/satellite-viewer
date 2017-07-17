@@ -92,8 +92,37 @@
       <div id="chart_div"></div>
     </div>
 
-    </div> 
-    </div>    
+    </div>
+
+          <div id="infoModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <div class="information">
+          <h1>TS/VI methods in remote sensing</h1>
+          <p>Imagery from remote sensing systems, often combined with ancillary ground information, is able to provide repetitive, synoptic views of key parameters characterizing land surface interactions, including surface energy fl uxes and surface soil moisture. Differing methodologies using a wide range of remote sensing data have been developed for this purpose. Approaches vary from purely empirical to more complex ones, including residual methods and those that have their basis in the biophysical properties characterizing a two-dimensional T s /VI (surface temperature/ vegetation index) scatterplot domain derived from remote sensing observations. The present article aims to offer a comprehensive and systematic review of this latter group of methods, which differ in terms of the complexity and assumptions they entail as well as their requirement for fi eld-based and other ancillary data. Prior to the review, the biophysical meanings and properties encapsulated in the T s /VI feature space is elucidated, since these represent the building block upon which all the T s /VI methods described herein are based. The overview of the T s /VI methods is also very timely, as one such method is being scheduled in the operational retrieval of surface soil moisture content by the National Polar-orbiting Operational Environmental Satellite System (NPOESS), in a series of satellite platforms due to be launched in the next 12 years starting from 2016. Key words: latent heat fl ux, remote sensing, sensible heat fl ux, surface soil moisture, T s /VI methods.</p>
+</div>
+              <img width="680px" src='{% static "tsvi.jpg" %}'/>
+
+    </div>
+          </div>
+
+              <div id="errorModal" class="modal">
+
+              <div class="modal-content">
+      <span class="close">&times;</span>
+      <div class="howto">
+
+          <h1>TS/VI scatterplot</h1>
+          <p>1. Select set of images</p>
+          <p>2. Zoom in to the area of interest.</p>
+          <p>3. Use the selection tool located in the bottom right corner of the screen</p>
+          <p>4. Click "Show TS/VI plot"</p>
+        </div>
+              </div>
+              </div>
+
+  </div>
+    
     <div id="map"></div>
 
     <!-- Trigger/Open The Modal -->

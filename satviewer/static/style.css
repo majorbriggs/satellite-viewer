@@ -201,6 +201,18 @@ font-weight: bold;
 
 }
 
+.information {
+  color: black;
+  font-size: 18px;
+  padding: 20px;
+}
+
+.howto {
+  color: black;
+  font-size: 20px;
+  padding: 20px;
+}
+
 #myBtn {
   margin: 20 20 20 20;
   font-size: 20px;

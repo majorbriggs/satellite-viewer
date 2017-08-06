@@ -1,6 +1,6 @@
 from aws.sqs import get_sqs_queue, get_sqs, QUEUE_NAME_DONE, send_image_on_geoserver, JobMessage
 from aws.aws_helpers import download_from_s3
-from geoserver.geoserver_api import add_new_image
+from geoserver.geoserver_api import add_new_image_from_job_message
 from const import OUTPUT_BUCKET
 
 def check_new_jobs(visibility_timeout=300,
@@ -22,7 +22,7 @@ def check_new_jobs(visibility_timeout=300,
 def process_job(job: JobMessage):
     print("Received message {}".format(job.key))
     download_from_s3(bucket_name=OUTPUT_BUCKET, key=job.key, filepath=job.key)
-    add_new_image(job)
+    add_new_image_from_job_message(job)
     message_id = send_image_on_geoserver(job)
     print("Message image-on-geoserver sent: {}".format(message_id))
 

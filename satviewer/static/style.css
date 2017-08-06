@@ -10,8 +10,7 @@ html, body { /* to make the map fill 100% of the window */
 
 .overlay {
   position: absolute;
-  top: 0;
-  left: 0;
+
   z-index: 9999;
   border: 1px solid #444;
   background-color: rgba(0,0,0,0.2);
@@ -23,11 +22,22 @@ html, body { /* to make the map fill 100% of the window */
 }
 
 .overlay.vertical-overlay {
+  left: 0;
   top: 180px;
   width: 440px;
   height: 100%;
   overflow-y: scroll;
 
+}
+
+.overlay.legend-overlay {
+  position: absolute;
+  z-index: 9999;
+  top: 180px;
+  right: 20px;
+}
+
+.legend-overlay img {
 }
 
 
@@ -188,11 +198,12 @@ font-weight: bold;
   margin: 0 auto;
   width: 100%}
 
-#instructions {
+.text-large {
   padding: 20px;
   color: white;
   font-size: 25px;
 }
+
 
 .btn-left {
   font-size: 20px;

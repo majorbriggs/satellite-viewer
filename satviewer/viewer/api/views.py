@@ -68,9 +68,9 @@ class WindowedTSVI(APIView):
 
     def get(self, request, format=None):
         data = request.query_params
-        neLat, neLng, swLat, swLng = [float(i) for i in [data['neLat'], data['neLng'], data['swLat'], data['swLng']]]
+        ne_lat, ne_lng, sw_lat, sw_lng = [float(i) for i in [data['neLat'], data['neLng'], data['swLat'], data['swLng']]]
         image_id = data['imageId']
         dataset_path = os.path.join(const.GEOSERVER_STORAGE, image_id, image_id.split('__')[-1])
-        tsvi_rows = get_tsvi(dataset_path, neLat=neLat, neLng=neLng, swLat=swLat, swLng=swLng)
+        tsvi_rows = get_tsvi(dataset_path, neLat=ne_lat, neLng=ne_lng, swLat=sw_lat, swLng=sw_lng)
         response_dict = [["NDVI", "TS"], *tsvi_rows]
         return Response(data=response_dict, status=status.HTTP_200_OK)

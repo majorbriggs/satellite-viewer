@@ -8,6 +8,7 @@ window.onload=function(){
     $(document).on('click', '.image-entry', function() {requestImage(this);});
 }
 
+var legendUrl = geoServerUrl + "wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=";
 
 var temperatureStyle = 'temperature';
 var ndviStyle = 'ndvi';
@@ -60,7 +61,8 @@ function onOverlayAdd(e){
     stateOfLayers[1] = true;
   } else if (e.name === 'TS'){
     stateOfLayers[2] = true;
-  } 
+  }
+  updateLegend();
 }
 
 function onOverlayRemove(e){
@@ -70,7 +72,26 @@ function onOverlayRemove(e){
     stateOfLayers[1] = false;
   } else if (e.name === 'TS'){
     stateOfLayers[2] = false;
-  } 
+  }
+  updateLegend();
+
+}
+
+function updateLegend(){
+    if (currentSceneID !== '') {
+        if (stateOfLayers[2] === true){
+            $("#legend").attr("src", legendUrl + getLayerName(currentSceneID, TEMP));
+        }
+        else if (stateOfLayers[1] === true){
+            $("#legend").attr("src", legendUrl + getLayerName(currentSceneID, NDVI));
+        }
+        else {
+            $("#legend").attr("src", "");
+        }
+    }
+
+
+
 }
 
 function restoreLayersSelection(){
@@ -99,6 +120,7 @@ function updateLayers(){
     ndviLayer = getWMSLayer(currentSceneID, NDVI, ndviStyle);
     rgbLayer = getWMSLayer(currentSceneID, RGB, '');
 
+
     var baseMaps = {
         "Earth": earthLayer,
 
@@ -121,6 +143,8 @@ function updateLayers(){
     if (tsviSelection != null){
       windowAjax(tsviSelection);
     }
+
+
 
 }
 

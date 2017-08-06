@@ -17,7 +17,6 @@ btn.onclick = function() {
       showError("Select area for TSVI scatterplot");
   }
   else{
-    $('#map').hide();
     modal.style.display = "block";
     loadChart();
 }
@@ -27,12 +26,10 @@ btn.onclick = function() {
 
 function showError(){
     modalError.style.display = "block";
-    $('#map').hide();
 }
 
 
 btnInfo.onclick = function (){
-  $('#map').hide();
     modalInfo.style.display = "block";
 }
 
@@ -40,7 +37,6 @@ btnInfo.onclick = function (){
 $(document).on('click', '.close', function() {
     modal.style.display = "none";
     modalInfo.style.display = "none";
-      $('#map').show();
 
 }
 );
@@ -48,7 +44,6 @@ $(document).on('click', '.close', function() {
 window.onclick = function(event) {
     if (event.target == modal || event.target == modalInfo || event.target == modalError) {
         event.target.style.display = "none";
-        $('#map').show();
 
     }
 }

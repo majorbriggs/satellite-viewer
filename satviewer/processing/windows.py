@@ -44,5 +44,7 @@ def get_tsvi(dataset_path, neLng, neLat, swLng, swLat):
         raster_window = lnglatWin.get_rasterio_window()
         ndvi_points = ndvi_src.read(1, window=raster_window)
         ts_points = ts_src.read(1, window=raster_window)
-        points = zip(ndvi_points.flatten().tolist(), ts_points.flatten().tolist())
+        ts_list = ts_points.flatten().tolist()
+        ndvi_list = ndvi_points.flatten().tolist()
+        points = zip(ndvi_list, ts_list)
         return points

@@ -25,6 +25,8 @@ var ndviLayer = getWMSLayer(currentSceneID, NDVI, ndviStyle);
 var rgbLayer = getWMSLayer(currentSceneID, RGB, '');
 var tsviSelection = null;
 
+var areaSnapshotUrl = "";
+
 var earthLayer = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
         attribution: 'Imagery © <a href="http://mapbox.com">Mapbox</a>',
         maxZoom: 17,
@@ -221,6 +223,7 @@ function windowAjax(layer)
   var NE_lng = layer._bounds._northEast.lng;
   var SW_lat = layer._bounds._southWest.lat;
   var SW_lng = layer._bounds._southWest.lng;
+  areaSnapshotUrl = "/api/windowed_image?imageId=" + currentSceneID + "&neLat=" + NE_lat + "&neLng=" + NE_lng + "&swLat=" + SW_lat + "&swLng=" + SW_lng;
   $.ajax
       (
         {
@@ -241,6 +244,8 @@ function windowAjax(layer)
             }
         }
       );
+
+
 }
 
 function addControlPlaceholders(map) {

@@ -19,6 +19,7 @@ btn.onclick = function() {
   else{
     modal.style.display = "block";
     loadChart();
+    $('#area-snapshot').attr('src', areaSnapshotUrl);
 }
 
 }
@@ -55,10 +56,17 @@ if (dataJson != ""){
 google.charts.load('current', {'packages':['corechart']});
      google.charts.setOnLoadCallback(drawChart);
      function drawChart() {
-       var dataTable = new google.visualization.arrayToDataTable(dataJson)
+       var dataTable = new google.visualization.DataTable();
 
+       dataTable.addColumn("number", "NDVI");
+       dataTable.addColumn("number", "TS");
+       dataTable.addRows(dataJson["points"]);
+       var pixelsDetails = "";
+       if (dataJson["downsampled"]) {
+            pixelsDetails += "Number of points: " + dataJson["downsampled_size"] + " (downsampled from " + dataJson["original_size"] + ")";
+       }
        var options = {
-         title: 'Ts / VI scatterplot',
+         title: 'Ts / VI scatterplot.\n' + pixelsDetails,
          vAxis: {title: 'Ts', minValue: 20, maxValue: 25},
          hAxis: {title: 'VI', minValue: 0, maxValue: 0.5},
          legend: 'none',

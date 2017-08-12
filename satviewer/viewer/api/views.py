@@ -1,8 +1,10 @@
 import os
 
 from django.db.models import Min, Max
+from django.http import HttpResponse
 from rest_framework import status
 from rest_framework.generics import ListAPIView
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -10,7 +12,8 @@ from aws.sqs import send_image_requested, JobMessage
 from viewer.models import SatelliteImage, add_sentinel_images, add_landsat_images
 from .serializers import SatelliteImageSerializer
 import const
-from processing.windows import get_tsvi
+from processing.windows import get_tsvi, TsViData, get_image
+
 
 class ImagesListAPIView(ListAPIView):
     serializer_class = SatelliteImageSerializer
@@ -62,7 +65,14 @@ class AddLandsatImagesView(APIView):
         add_landsat_images()
         return Response(status=status.HTTP_200_OK)
 
+from rest_framework import serializers
 
+class TsViSerializer(serializers.Serializer):
+    points = serializers.ListField()
+    downsampled = serializers.BooleanField()
+    step = serializers.IntegerField()
+    downsampled_size = serializers.IntegerField()
+    original_size = serializers.IntegerField()
 
 class WindowedTSVI(APIView):
 
@@ -71,6 +81,18 @@ class WindowedTSVI(APIView):
         ne_lat, ne_lng, sw_lat, sw_lng = [float(i) for i in [data['neLat'], data['neLng'], data['swLat'], data['swLng']]]
         image_id = data['imageId']
         dataset_path = os.path.join(const.GEOSERVER_STORAGE, image_id, image_id.split('__')[-1])
-        tsvi_rows = get_tsvi(dataset_path, neLat=ne_lat, neLng=ne_lng, swLat=sw_lat, swLng=sw_lng)
-        response_dict = [["NDVI", "TS"], *tsvi_rows]
-        return Response(data=response_dict, status=status.HTTP_200_OK)
+        tsvi_data = get_tsvi(dataset_path, neLat=ne_lat, neLng=ne_lng, swLat=sw_lat, swLng=sw_lng) # type: TsViData
+        d = TsViSerializer(tsvi_data).data
+        return Response(data=d, status=status.HTTP_200_OK)
+
+class WindowedRGBImage(APIView):
+    def get(self, request, format=None):
+        data = request.query_params
+        ne_lat, ne_lng, sw_lat, sw_lng = [float(i) for i in
+                                          [data['neLat'], data['neLng'], data['swLat'], data['swLng']]]
+        image_id = data['imageId']
+        dataset_path = os.path.join(const.GEOSERVER_STORAGE, image_id, image_id.split('__')[-1])
+        png_data = get_image(dataset_path, neLat=ne_lat, neLng=ne_lng, swLat=sw_lat, swLng=sw_lng)
+        response = HttpResponse(content_type="image/png")
+        response.write(png_data)
+        return response

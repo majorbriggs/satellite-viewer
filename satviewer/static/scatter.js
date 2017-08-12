@@ -17,7 +17,7 @@ btn.onclick = function() {
       showError("Select area for TSVI scatterplot");
   }
   else{
-    modal.style.display = "block";
+    // modal.style.display = "block";
     loadChart();
     $('#area-snapshot').attr('src', areaSnapshotUrl);
 }
@@ -71,7 +71,7 @@ google.charts.load('current', {'packages':['corechart']});
          hAxis: {title: 'VI', minValue: 0, maxValue: 0.5},
          legend: 'none',
          pointSize: 1,
-         height: 400,
+         height: 390
 
        };
 

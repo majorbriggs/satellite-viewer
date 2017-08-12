@@ -36,54 +36,48 @@
 </head>
 
 <body>
-  <div class="container-fluid">
-    <div class="row">
-        <div class="overlay horizontal-overlay" id="control-panel">
-          <div class="col-sm-3 slider-container">
-            <div id="logo">Satellite Viewer</div>
-          </div>
-          <div class="col-sm-3 slider-container">
-            <p>
-              <label for="clouds-amount" class="slider-label">Clouds percentage:</label>
-              <input type="text" id="clouds-amount" readonly >
-            </p>
-          <div id="clouds-range"></div>
-          </div>            
-          <div class="col-sm-3 slider-container">
-            <p>
-              <label for="data-amount" class="slider-label">Data percentage:</label>
-              <input type="text" id="data-amount" readonly >
-            </p>
-          <div id="data-range"></div>
-          </div>
-          <div class="col-sm-3 slider-container">
-            <p>
-              <label for="date-amount" class="slider-label">Date range:</label>
-              <input type="text" id="date-amount" readonly >
-            </p>
-          <div id="date-range"></div>
-          </div>
-        </div>
-    </div>
-    <div class="overlay tsvi-overlay">
-        <img id="legend" src=''/>
+  <div>
 
+    <div class="overlay tsvi-overlay">
+      <div id="chart_div"></div>
       </div>
       <div class="overlay legend-overlay">
         <img id="legend" src=''/>
 
       </div>
     <div class="overlay vertical-overlay">
-      <div id="instructions" class="text-large">
+        <div id="control-panel">
+            <div id="logo">Satellite Viewer</div>
+            <div id="instructions" class="text-large">
         Pick a dataset from the list below and select area on the map to create Ts/VI scatterplot.
       </div>
-      <div id="buttons">
+          <div class="slider-container">
+              <label for="clouds-amount" class="slider-label">Clouds percentage:</label>
+              <input type="text" id="clouds-amount" readonly >
+          <div id="clouds-range"></div>
+          </div>
+          <div class="slider-container">
+              <label for="data-amount" class="slider-label">Data percentage:</label>
+              <input type="text" id="data-amount" readonly >
+          <div id="data-range"></div>
+          </div>
+          <div class="slider-container">
+              <label for="date-amount" class="slider-label">Date range:</label>
+              <input type="text" id="date-amount" readonly >
+          <div id="date-range"></div>
+          </div>
+          <div id="buttons">
 
         <button class="btn-left" id="btn-show-ts-vi" >Show TS/VI plot</button>
-        <button class="btn-left" id="btn-ts-vi-info" >What is TS/VI analysis?</button>
+        <button class="btn-left" id="btn-ts-vi-info" >About TS/VI analysis</button>
         </div>
+        </div>
+
+        <div class="overlay list-overlay">
+            
       <div id="images-list">
         
+      </div>
       </div>
         
       </div>
@@ -95,7 +89,6 @@
     <!-- Modal content -->
     <div class="modal-content">
       <span class="close">&times;</span>
-      <div id="chart_div"></div>
         <div class="area-snapshot-container">
             <img id="area-snapshot" src=""/></div></div>
     </div>

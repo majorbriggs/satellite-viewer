@@ -76,6 +76,17 @@ google.charts.load('current', {'packages':['corechart']});
        };
 
        var chart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
+      function selectHandler() {
+          var selectedItem = chart.getSelection()[0];
+          if (selectedItem) {
+            var value = dataTable.getValue(selectedItem.row, selectedItem.column);
+            alert('The user selected ' + value);
+          }
+        }
+
+        // Listen for the 'select' event, and call my function selectHandler() when
+        // the user selects something on the chart.
+        google.visualization.events.addListener(chart, 'select', selectHandler);
 
        chart.draw(dataTable, options);
      }

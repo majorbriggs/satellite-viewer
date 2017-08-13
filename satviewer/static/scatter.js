@@ -4,25 +4,10 @@ var modalInfo = document.getElementById('infoModal');
 var modalError = document.getElementById('errorModal');
 
 // Get the button that opens the modal
-var btn = document.getElementById("btn-show-ts-vi");
+//var btn = document.getElementById("btn-show-ts-vi");
 
 
 var btnInfo = document.getElementById("btn-ts-vi-info");
-
-// Get the <span> element that closes the modal
-
-// When the user clicks on the button, open the modal
-btn.onclick = function() {
-  if (tsviSelection == null){
-      showError("Select area for TSVI scatterplot");
-  }
-  else{
-    // modal.style.display = "block";
-    loadChart();
-    $('#area-snapshot').attr('src', areaSnapshotUrl);
-}
-
-}
 
 
 function showError(){

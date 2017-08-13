@@ -155,9 +155,10 @@ function updateLayers(){
 function setupMap()
 {
 
-map.on('click', function(e) {
-    getFeature(e.latlng);
-});
+    map.on('click', function(e) {
+        getFeature(e.latlng);
+    });
+
     addControlPlaceholders(map);
     updateLayers();
 

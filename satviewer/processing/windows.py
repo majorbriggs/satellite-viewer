@@ -1,5 +1,6 @@
 import math
 import rasterio
+import numpy as np
 from django.http import HttpResponse
 from pyproj import Proj
 import pyproj
@@ -37,6 +38,7 @@ class LngLatWindow:
         return window
 
 
+
 class TsViData:
 
     def __init__(self, points, downsampled, step, original_size):
@@ -47,35 +49,42 @@ class TsViData:
         self.original_size = original_size
 
 
-def get_tsvi(dataset_path, neLng, neLat, swLng, swLat, max_n=10000):
+def get_tsvi(dataset_path, ne_lng, ne_lat, sw_lng, sw_lat, max_n=10000):
     downsampled = False
     step = None
     ts_file = dataset_path + "_TEMP.tif"
     ndvi_file = dataset_path + "_NDVI.tif"
     with rasterio.open(ts_file) as ts_src, rasterio.open(ndvi_file) as ndvi_src:
-        lnglatWin = LngLatWindow(ts_src, north_east=LngLat(lng=neLng, lat=neLat),
-                                 south_west=LngLat(lng=swLng, lat=swLat))
+        lnglatWin = LngLatWindow(ts_src, north_east=LngLat(lng=ne_lng, lat=ne_lat),
+                                 south_west=LngLat(lng=sw_lng, lat=sw_lat))
         raster_window = lnglatWin.get_rasterio_window()
         ndvi_points = ndvi_src.read(1, window=raster_window)
         ts_points = ts_src.read(1, window=raster_window)
+        height = ndvi_points.shape[0]
+        width = ndvi_points.shape[1]
+        lngs = np.linspace(sw_lng, ne_lng, width)
+        lats = np.linspace(ne_lat, sw_lat, height)
+        X, Y = np.meshgrid(lngs, lats)
+        XY = np.array([X.flatten(), Y.flatten()]).T
         ts_list = ts_points.flatten().tolist()
         ndvi_list = ndvi_points.flatten().tolist()
+        orig_size = len(ndvi_list)
 
         if max_n is not None and len(ndvi_list) > max_n:
             downsampled = True
             step = math.ceil(len(ndvi_list) / max_n)
-            ndvi_downsampled = ndvi_list[::step]
-            ts_downsampled = ts_list[::step]
-            points = list(zip(ndvi_downsampled, ts_downsampled))
-        else:
-            points = list(zip(ndvi_list, ts_list))
-        return TsViData(original_size=len(ndvi_list), points=points, downsampled=downsampled, step=step)
+            ndvi_list = ndvi_list[::step]
+            ts_list = ts_list[::step]
+            XY = XY[::step]
+        points = list(zip(ndvi_list, ts_list, *zip(*XY)))
+        return TsViData(original_size=orig_size, points=points, downsampled=downsampled, step=step)
 
-def get_image(dataset_path, neLng, neLat, swLng, swLat):
+
+def get_image(dataset_path, ne_lng, ne_lat, sw_lng, sw_lat):
     rgb_file = dataset_path + "_RGB.tif"
     with rasterio.open(rgb_file) as rgb_src:
-        lnglatWin = LngLatWindow(rgb_src, north_east=LngLat(lng=neLng, lat=neLat),
-                                 south_west=LngLat(lng=swLng, lat=swLat))
+        lnglatWin = LngLatWindow(rgb_src, north_east=LngLat(lng=ne_lng, lat=ne_lat),
+                                 south_west=LngLat(lng=sw_lng, lat=sw_lat))
         raster_window = lnglatWin.get_rasterio_window()
         rgb_points = rgb_src.read(window=raster_window)
         height, width = get_witdh_height_from_window(raster_window)
@@ -88,4 +97,4 @@ def get_image(dataset_path, neLng, neLat, swLng, swLat):
 def get_witdh_height_from_window(window):
     return abs(window[0][1]-window[0][0]), abs(window[1][1] - window[1][0])
 if __name__ == "__main__":
-    get_image("test", 55, 56, 18, 19)
+    get_tsvi("test", 55, 56, 18, 19)

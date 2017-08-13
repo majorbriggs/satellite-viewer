@@ -81,18 +81,21 @@ class WindowedTSVI(APIView):
         ne_lat, ne_lng, sw_lat, sw_lng = [float(i) for i in [data['neLat'], data['neLng'], data['swLat'], data['swLng']]]
         image_id = data['imageId']
         dataset_path = os.path.join(const.GEOSERVER_STORAGE, image_id, image_id.split('__')[-1])
-        tsvi_data = get_tsvi(dataset_path, neLat=ne_lat, neLng=ne_lng, swLat=sw_lat, swLng=sw_lng) # type: TsViData
+        tsvi_data = get_tsvi(dataset_path, ne_lat=ne_lat, ne_lng=ne_lng, sw_lat=sw_lat, sw_lng=sw_lng) # type: TsViData
         d = TsViSerializer(tsvi_data).data
         return Response(data=d, status=status.HTTP_200_OK)
 
 class WindowedRGBImage(APIView):
+    """
+    Returns a PNG file of RGB image for the selected bounding box
+    """
     def get(self, request, format=None):
         data = request.query_params
         ne_lat, ne_lng, sw_lat, sw_lng = [float(i) for i in
                                           [data['neLat'], data['neLng'], data['swLat'], data['swLng']]]
         image_id = data['imageId']
         dataset_path = os.path.join(const.GEOSERVER_STORAGE, image_id, image_id.split('__')[-1])
-        png_data = get_image(dataset_path, neLat=ne_lat, neLng=ne_lng, swLat=sw_lat, swLng=sw_lng)
+        png_data = get_image(dataset_path, ne_lat=ne_lat, ne_lng=ne_lng, sw_lat=sw_lat, sw_lng=sw_lng)
         response = HttpResponse(content_type="image/png")
         response.write(png_data)
         return response

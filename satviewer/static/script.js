@@ -24,7 +24,9 @@ var tsLayer = getWMSLayer(currentSceneID, TEMP, temperatureStyle);
 var ndviLayer = getWMSLayer(currentSceneID, NDVI, ndviStyle);
 var rgbLayer = getWMSLayer(currentSceneID, RGB, '');
 var tsviSelection = null;
-
+var marker = L.marker();
+var popup = L.popup();
+var popupLatLng = null;
 var areaSnapshotUrl = "";
 
 var earthLayer = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
@@ -153,10 +155,10 @@ function updateLayers(){
 function setupMap()
 {
 
-
+map.on('click', function(e) {
+    getFeature(e.latlng);
+});
     addControlPlaceholders(map);
-
-
     updateLayers();
 
     drawnItems = L.featureGroup();
@@ -202,6 +204,7 @@ function setupMap()
     map.on(L.Draw.Event.EDITED, function (e) {
       tsviSelection = e.layers._layers[Object.keys(e.layers._layers)[0]];
       windowAjax(tsviSelection);
+      marker.remove();
     });
 
     map.on(L.Draw.Event.DELETED, function(e) {
@@ -241,6 +244,7 @@ function windowAjax(layer)
           success: function(response)
             {
               dataJson = response;
+              loadChart();
             }
         }
       );
@@ -417,26 +421,55 @@ function requestImage(element){
   selected_image_element = element;
   $(selected_image_element).addClass('image-selected');
   updateLayers();
-	// image_uri = $(element).find($('.image-id')).text();
- //  $.ajax
- //      (
- //        {
- //          type: 'GET',
- //          url: '/api/image',
- //          dataType: 'json',
- //          data:
- //            {
- //              image_uri: image_uri,
- //            },
- //          success: function(response)
- //            {
- //              if (response)
- //                {
- //                  alert("Queue msg id: " + response.message_id);
-
- //                }
- //            }
- //        }
- //      );
 }
 
+
+function getFeature(latlng){
+    popupLatLng = latlng;
+    var parameters = {
+  service: 'WMS',
+  version: '1.1.1',
+  request: 'GetFeatureInfo',
+  format: 'image/jpeg',
+  format_options: 'callback:processJson',
+  outputFormat: "text/javascript",
+  transparent: true,
+  layers: getLayerName(currentSceneID, TEMP)+','+ getLayerName(currentSceneID, NDVI),
+  query_layers: getLayerName(currentSceneID, TEMP)+','+ getLayerName(currentSceneID, NDVI),
+  feature_count: 50,
+  info_format: 'text/javascript', // this is important
+  srs: 'EPSG:4326',
+  width: 101,
+  height: 101,
+  x: 50,
+  y: 50,
+  bbox: (latlng.lng - 0.01) + ',' + (latlng.lat - 0.01) + ',' + (latlng.lng + 0.01) + ',' + (latlng.lat + 0.01)
+  }
+
+
+
+
+var requestUrl = geoServerUrl + "sat-viewer/wms" + L.Util.getParamString(parameters)
+$.ajax({
+  url: requestUrl,
+  dataType: 'jsonp',
+  success: function (data) {
+  alert("Success");
+  }
+})
+}
+
+
+function processJson(data){
+    handleJson(popupLatLng, data);
+}
+
+function handleJson(latlng, data){
+    popup.setLatLng(latlng)
+   .setContent("<b>Ts:</b> "+ getFeatureValue(data, 0).toFixed(2) + "&#8451 <br/> <b>VI:</b> "+ getFeatureValue(data, 1).toFixed(3))
+   .openOn(map);
+}
+
+function getFeatureValue(data, index){
+    return data["features"][index]["properties"]["GRAY_INDEX"];
+}

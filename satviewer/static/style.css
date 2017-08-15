@@ -3,7 +3,6 @@ html, body { /* to make the map fill 100% of the window */
       overflow: hidden;
       width: 100%;
       font-family: Simplifica;
-      
       }
 
 
@@ -14,11 +13,6 @@ html, body { /* to make the map fill 100% of the window */
   z-index: 9999;
     overflow-y: auto;
 
-}
-
-.overlay.horizontal-overlay {
-  top: 0;
-  width: 100%;
 }
 
 .overlay.vertical-overlay {
@@ -111,28 +105,26 @@ src: url(aqua.ttf);
 }
 
 #logo {
-font-family: Simplifica;
-font-size: 60px;
-color: white;
-padding: 20px;
+  font-family: Simplifica;
+  font-size: 60px;
+  color: white;
+  padding: 20px;
 }
 
 .image-entry {
-color: white;
-padding: 10px;
+  color: white;
+  padding: 10px;
 }
 
 .image-entry img {
-max-width: 120px;
-align-self: center;
+  max-width: 120px;
+  align-self: center;
 }
 
 .image-entry table {
-table-layout: fixed;
+  table-layout: fixed;
 }
 
-#images-list {
-}
 
 #images-list ul {
 padding: 0;
@@ -230,7 +222,7 @@ font-weight: bold;
 .btn-left {
   font-size: 15px;
   font-weight: bold;
-  width: 160px;
+  width: 180px;
   margin: 10 10;
 
 }

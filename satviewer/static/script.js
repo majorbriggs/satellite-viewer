@@ -4,7 +4,6 @@ window.onload=function(){
 	  dateRangeAjax();
     percentageSlider("#clouds-range", "#clouds-amount", 0, 50);
     percentageSlider("#data-range", "#data-amount", 0, 100);
-
     $(document).on('click', '.image-entry', function() {requestImage(this);});
 }
 

@@ -8,8 +8,7 @@ window.onload=function(){
     $(document).on('click', '.image-entry', function() {requestImage(this);});
 }
 
-var legendUrl = geoServerUrl + "wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=";
-
+var legendUrl = geoServerUrl + "wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=30&HEIGHT=20&LAYER=";
 var temperatureStyle = 'temperature';
 var ndviStyle = 'ndvi';
 var dataJson = "";
@@ -28,6 +27,7 @@ var marker = L.marker();
 var popup = L.popup();
 var popupLatLng = null;
 var areaSnapshotUrl = "";
+var control = null;
 
 var earthLayer = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
         attribution: 'Imagery © <a href="http://mapbox.com">Mapbox</a>',
@@ -107,7 +107,6 @@ function restoreLayersSelection(){
   }
   
 }
-var control = null;
 
 
 function getLayerName(sceneID, type){
@@ -432,7 +431,7 @@ function getFeature(latlng){
   version: '1.1.1',
   request: 'GetFeatureInfo',
   format: 'image/jpeg',
-  format_options: 'callback:processJson',
+  format_options: 'callback:processFeatureInfoJson',
   outputFormat: "text/javascript",
   transparent: true,
   layers: getLayerName(currentSceneID, TEMP)+','+ getLayerName(currentSceneID, NDVI),
@@ -461,11 +460,11 @@ $.ajax({
 }
 
 
-function processJson(data){
-    handleJson(popupLatLng, data);
+function processFeatureInfoJson(data){
+    displayFeatureInfoPopup(popupLatLng, data);
 }
 
-function handleJson(latlng, data){
+function displayFeatureInfoPopup(latlng, data){
     popup.setLatLng(latlng)
    .setContent("<b>Ts:</b> "+ getFeatureValue(data, 0).toFixed(2) + "&#8451 <br/> <b>VI:</b> "+ getFeatureValue(data, 1).toFixed(3))
    .openOn(map);

@@ -1,18 +1,7 @@
 // Get the modal
 var modal = document.getElementById('myModal');
 var modalInfo = document.getElementById('infoModal');
-var modalError = document.getElementById('errorModal');
-
-// Get the button that opens the modal
-//var btn = document.getElementById("btn-show-ts-vi");
-
-
 var btnInfo = document.getElementById("btn-ts-vi-info");
-
-
-function showError(){
-    modalError.style.display = "block";
-}
 
 
 btnInfo.onclick = function (){
@@ -23,14 +12,12 @@ btnInfo.onclick = function (){
 $(document).on('click', '.close', function() {
     modal.style.display = "none";
     modalInfo.style.display = "none";
-    modalError.style.display = "none";
 }
 );
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function(event) {
-    if (event.target == modal || event.target == modalInfo || event.target == modalError) {
+    if (event.target == modal || event.target == modalInfo) {
         event.target.style.display = "none";
-
     }
 }
 

@@ -1,5 +1,4 @@
 // Get the modal
-var modal = document.getElementById('myModal');
 var modalInfo = document.getElementById('infoModal');
 var btnInfo = document.getElementById("btn-ts-vi-info");
 
@@ -10,13 +9,12 @@ btnInfo.onclick = function (){
 
 // When the user clicks on <span> (x), close the modal
 $(document).on('click', '.close', function() {
-    modal.style.display = "none";
     modalInfo.style.display = "none";
 }
 );
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function(event) {
-    if (event.target == modal || event.target == modalInfo) {
+    if (event.target == modalInfo) {
         event.target.style.display = "none";
     }
 }

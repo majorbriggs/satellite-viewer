@@ -86,7 +86,14 @@ def download_landsat_bands(bands, dir_uri, output_dir='.'):
         band_filename = scene_id+"_B{}.TIF".format(band)
         file_key = dir_uri + band_filename
         output_filepath = os.path.join(output_dir, "B{}.TIF".format(band))
-        client.download_file(landsat_bucket_name, file_key, output_filepath)
+        download_from_s3(landsat_bucket_name, file_key, output_filepath)
+
+def download_mtl_json(dir_uri, output_dir='.'):
+    scene_id = dir_uri.strip('/').split('/')[-1]
+    band_filename = scene_id+"_MTL.json"
+    file_key = dir_uri + band_filename
+    output_filepath = os.path.join(output_dir, "MTL.json")
+    download_from_s3(landsat_bucket_name, file_key, output_filepath)
 
 
 def upload_to_s3(bucket_name, key, filepath):

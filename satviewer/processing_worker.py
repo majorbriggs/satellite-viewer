@@ -1,7 +1,9 @@
-from aws.sqs import send_image_done, QUEUE_NAME_REQUESTED, get_sqs_queue, JobMessage, get_sqs
-from aws.aws_helpers import upload_to_s3
-from processing.raster import ImageCalculator
 import const
+from aws.aws_helpers import upload_to_s3
+from aws.sqs import send_image_done, QUEUE_NAME_REQUESTED, get_sqs_queue, JobMessage, get_sqs
+
+from satviewer.processing import ImageCalculator
+
 
 def check_new_jobs(visibility_timeout=300,
                 wait_time_seconds=20):

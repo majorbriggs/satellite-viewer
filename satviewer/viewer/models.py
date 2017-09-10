@@ -7,7 +7,7 @@ from aws.aws_helpers import get_s2_images_data, get_landsat_images_data
 class SatelliteImage(Model):
     source = TextField(default="L8")
 
-    aws_bucket_uri = TextField()
+    aws_bucket_uri = TextField(primary_key=True)
 
     clouds_percentage = FloatField()
 

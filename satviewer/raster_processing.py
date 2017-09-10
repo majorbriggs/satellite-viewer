@@ -6,19 +6,24 @@ import glob, os
 import rasterio
 import numpy as np
 from l8qa.qa import cloud_confidence
-
-
+import json
+from aws.aws_helpers import Image
 Bands = namedtuple("Bands", ["R", "G", "B", "NIR", "TIRS"])
 
 bands = Bands(R=4, G=3, B=2, NIR=5, TIRS=10)
 
 
+def get_landsat_image_info(key, src_dir):
+    with open(meta_filename(src_dir)) as src:
+        j = json.load(src)
+        clouds = j['L1_METADATA_FILE']['IMAGE_ATTRIBUTES']['CLOUD_COVER']
+        date = j['L1_METADATA_FILE']['PRODUCT_METADATA']['DATE_ACQUIRED']
+        key_short = key.strip('/').split('/')[-1]
+        return Image(aws_bucket_uri=key_short, source="L8", data_percentage=100, clouds_percentage=clouds, date=date)
+
 def get_cloud_mask(src_dir):
     with rasterio.open(band_filename(src_dir, 'QA')) as src:
-        src_array = src.read(1)
-
-        cloudmask = cloud_confidence(src_array) == 3
-        return cloudmask
+        return cloud_confidence(src.read(1)) == 3
 
 def band_filename(src_dir, band_number):
     os.chdir(src_dir)
@@ -32,7 +37,7 @@ def meta_filename(src_dir):
     os.chdir(src_dir)
     for file in glob.glob("*MTL.json"):
         return file
-    raise FileNotFoundError("*_MTL.json")
+    raise FileNotFoundError("*MTL.json")
 
 
 def _to_uint8(image, display_min, display_max):
@@ -80,11 +85,12 @@ def calculate_ndvi(src_dir, dst_path, x0=None, x1=None, y0=None, y1=None, with_c
             ndvi = np.true_divide((nir - r), (nir + r))
 
             if with_cloud_mask:
-                ndvi = ndvi * ~get_cloud_mask(src_dir)
+                mask = get_cloud_mask(src_dir)
+                ndvi[mask] = np.nan
 
             with rasterio.open(dst_path, 'w',
                                driver='GTiff', width=y1 - y0, height=x1-x0, count=1, blockxsize=512, blockysize=512,
-                               dtype=np.float32, crs=r_band.crs, transform=r_band.transform, nodata=0) as dst:
+                               dtype=np.float32, crs=r_band.crs, transform=r_band.transform, nodata=np.nan) as dst:
                 for k, arr in [(1, ndvi)]:
                     dst.write(arr, indexes=k)
 
@@ -103,15 +109,18 @@ def calculate_rgb(src_dir, dst_path, display_min=5000,
                 g = to_uint8_lut(g_band.read(1, window=((x0, x1), (y0, y1))), display_min, display_max)
                 b = to_uint8_lut(b_band.read(1, window=((x0, x1), (y0, y1))), display_min, display_max)
 
-                if with_cloud_mask:
-                    cloud_mask = ~get_cloud_mask(src_dir)
-                    r, g, b = (band * ~cloud_mask for band in (r, g, b))
+                # if with_cloud_mask:
+                #     cloud_mask = ~get_cloud_mask(src_dir)
+                #     r, g, b = (band * cloud_mask for band in (r, g, b))
+                cloud_mask = ~get_cloud_mask(src_dir)
+                alpha = cloud_mask.astype(np.uint8) * 255
+                alpha[r == 0] = 0
 
                 with rasterio.open(dst_path, 'w',
-                                   driver='GTiff', width=y1-y0, height=x1-x0, count=3, tiled=True,
+                                   driver='GTiff', width=y1-y0, height=x1-x0, count=4, tiled=True,
                                    blockxsize=512, blockysize=512, compress=None, dtype=np.uint8,
-                                   crs=r_band.crs, transform=r_band.transform) as dst:
-                    for k, arr in [(1, r), (2, g), (3, b)]:
+                                   crs=r_band.crs, transform=r_band.transform, nodata=255) as dst:
+                    for k, arr in [(1, r), (2, g), (3, b), (4, alpha)]:
                         dst.write(arr, indexes=k)
 
 
@@ -128,25 +137,22 @@ def calculate_ts(src_dir, dst_path, with_cloud_mask=True):
                                                              dst_dtype='float32')
     if with_cloud_mask:
         cloud_mask = get_cloud_mask(src_dir)
-        with rasterio.open(dst_path, mode='r+') as src:
+        with rasterio.open(dst_path, mode='r+', nodata=np.nan) as src:
             band = src.read(1)
-            band = band * ~cloud_mask
+            band[cloud_mask] = np.nan
             src.write_band(1, band)
 
 
 if __name__ == "__main__":
-    ROOT = "/home/piotrek/mgr/datasets_fix/"
+    ROOT = "/home/piotrek/mgr/datasets/"
 
-    data_sets = ['2015_04_21__LC81900222015111LGN00',
-                 '2017_04_10__LC81900222017100LGN00',
-                 '2017_05_12__LC81900222017132LGN00',
-                 '2017_05_28__LC81900222017148LGN00']
+    data_sets = [#'2015_04_21__LC81900222015111LGN00',
+                 'LC08_L1TP_190022_20170731_20170801_01_RT']
 
     for data_set in data_sets:
         print("Calculating set: "+data_set)
-        input_dirpath = ROOT + data_set
+        input_dirpath = ROOT + data_set + "/sources/"
         prefix = data_set.split("__")[-1]
 
-        calculate_ndvi(src_dir=input_dirpath, dst_path=prefix + 'NDVI.tif')
-        calculate_rgb(src_dir=input_dirpath, dst_path=prefix + 'RGB.tif', display_min=5000, display_max=13000)
+        calculate_ts(src_dir=input_dirpath, dst_path=prefix + 'TEMP.tif', with_cloud_mask=True)
 

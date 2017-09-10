@@ -137,8 +137,4 @@ def add_style_to_layer(layer, style, ws = WORKSPACE):
         print("Style {} added to layer {}".format(style, layer))
 
 if __name__ == "__main__":
-    for layer in get_all_layers_names():
-        if layer.endswith("NDVI"):
-            add_style_to_layer(layer, "ndvi")
-        elif layer.endswith("TEMP"):
-            add_style_to_layer(layer, "temperature")
+    add_layers_for_datasets()

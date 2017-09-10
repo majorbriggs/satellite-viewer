@@ -21,7 +21,7 @@ class ImagesListAPIView(ListAPIView):
         queryset = SatelliteImage.objects.all()
         if self.request.query_params:
             clouds_min = float(self.request.query_params.get('clouds_min', 0))
-            clouds_max = float(self.request.query_params.get('clouds_max', 0))
+            clouds_max = float(self.request.query_params.get('clouds_max', 100))
             data_min = float(self.request.query_params.get('data_min', 0))
             data_max = float(self.request.query_params.get('data_max', 100))
             date_min = self.request.query_params.get('date_min', None)
@@ -98,3 +98,17 @@ class WindowedRGBImage(APIView):
         response = HttpResponse(content_type="image/png")
         response.write(png_data)
         return response
+
+
+
+class AddNewImageView(APIView):
+    def get(self, request, format=None):
+        from add_images import add_image_set
+        image_uri = request.query_params.get('image_uri')
+        if image_uri:
+            add_image_set(image_uri)
+            return Response({"result":"IMAGE ADDED"})
+        return Response({"message_id":"Bad Request"})
+
+
+

@@ -25,6 +25,9 @@ landsat_bucket = s3.Bucket(landsat_bucket_name)
 client = boto3.client('s3', region_name='eu-central-1',
                       config=botocore.client.Config(signature_version=botocore.UNSIGNED))
 
+def get_image_id_from_s3_key(s3_key):
+    return s3_key.strip('/').split('/')[-1]
+
 
 def get_s2_images_data(prefix=s2_prefix):
     result = client.list_objects(Bucket=sentinel_bucket_name,

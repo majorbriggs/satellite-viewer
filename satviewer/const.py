@@ -1,7 +1,8 @@
 from satviewer.settings import PRODUCTION
 
-NDVI = 'ndvi'
-RGB = 'rgb'
+NDVI = 'NDVI'
+RGB = 'RGB'
+TEMP = 'TEMP'
 LANDSAT = 'landsat'
 SENTINEL = 'sentinel'
 OUTPUT_BUCKET = 'satellite-viewer-processed'

@@ -2,14 +2,14 @@ window.onload=function(){
     setupMap();
 
 	  dateRangeAjax();
-    percentageSlider("#clouds-range", "#clouds-amount", 0, 50);
+    percentageSlider("#clouds-range", "#clouds-amount", 0, 100);
     percentageSlider("#data-range", "#data-amount", 0, 100);
     $(document).on('click', '.image-entry', function() {requestImage(this);});
 }
 
 var legendUrl = geoServerUrl + "wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=30&HEIGHT=20&LAYER=";
-var temperatureStyle = 'temperature';
-var ndviStyle = 'ndvi';
+var temperatureStyle = 'TEMP';
+var ndviStyle = 'NDVI';
 var dataJson = "";
 var WORKSPACE = 'sat-viewer'
 var RGB = 'RGB';
@@ -109,7 +109,7 @@ function restoreLayersSelection(){
 
 
 function getLayerName(sceneID, type){
-    return WORKSPACE + ":" + sceneID.split('__')[1] + "_" + type;
+    return WORKSPACE + ":" + sceneID + "_" + type;
 
 }
 function updateLayers(){

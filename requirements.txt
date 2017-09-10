@@ -17,3 +17,5 @@ pyproj
 # processing worker
 numpy==1.12.1
 rasterio==0.36.0
+rio-toa==0.3.0
+rio-l8qa==0.1.1

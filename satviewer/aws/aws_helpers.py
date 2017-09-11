@@ -5,8 +5,7 @@ import botocore
 import json
 from collections import namedtuple
 
-import const
-from aws.sqs import JobMessage
+from const import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 
 Image = namedtuple("AWSImageData", ['source', 'aws_bucket_uri', 'clouds_percentage', 'data_percentage', 'date'])
 
@@ -18,7 +17,10 @@ landsat_bucket_name = 'landsat-pds'
 landsat_prefix = 'L8/190/022'
 s2_prefix = 'tiles/34/U/CF/'  # prefix for Pomeranian district
 
-s3 = boto3.resource('s3', region_name='eu-central-1')
+s3 = boto3.resource('s3', region_name='eu-central-1',
+                    aws_access_key_id=AWS_ACCESS_KEY_ID,
+                    aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
+
 sentinel_bucket = s3.Bucket(sentinel_bucket_name)
 landsat_bucket = s3.Bucket(landsat_bucket_name)
 
@@ -85,6 +87,7 @@ def download_sentinel_bands(bands, dir_uri, output_dir='.'):
 
 def download_landsat_bands(bands, dir_uri, output_dir='.'):
     for band in bands:
+        dir_uri = dir_uri.replace('s3://landsat-pds/', '')
         scene_id = dir_uri.strip('/').split('/')[-1]
         band_filename = scene_id+"_B{}.TIF".format(band)
         file_key = dir_uri + band_filename
@@ -92,6 +95,7 @@ def download_landsat_bands(bands, dir_uri, output_dir='.'):
         download_from_s3(landsat_bucket_name, file_key, output_filepath)
 
 def download_mtl_json(dir_uri, output_dir='.'):
+    dir_uri = dir_uri.replace('s3://landsat-pds/', '')
     scene_id = dir_uri.strip('/').split('/')[-1]
     band_filename = scene_id+"_MTL.json"
     file_key = dir_uri + band_filename

@@ -19,7 +19,7 @@ html, body { /* to make the map fill 100% of the window */
 
   left: 10px;
   top: 10px;
-  width: 410px;
+  width: 420px;
   height: 100%;
 
 }
@@ -33,7 +33,7 @@ html, body { /* to make the map fill 100% of the window */
 
 .list-overlay {
   top: 490px;
-  width: 410px;
+  width: 420px;
   height: 390px;
   border: 1px solid #444;
   background-color: rgba(0,0,0,0.25);
@@ -109,7 +109,7 @@ src: url(aqua.ttf);
   font-family: Simplifica;
   font-size: 60px;
   color: white;
-  padding: 20px;
+  padding: 0px 20px 0px 20px;
 }
 
 .image-entry {
@@ -213,17 +213,27 @@ font-weight: bold;
   width: 100%}
 
 .text-large {
-  padding: 20px;
+  padding: 0px 20px 20px 20px;
   color: white;
   font-size: 20px;
   font-weight: bold;
+}
+
+a:hover {
+  color: #f6931f;
+}
+
+#url-input {
+  font-size: 15px;
+  font-weight: bold;
+  width: 290px;
 }
 
 
 .btn-left {
   font-size: 15px;
   font-weight: bold;
-  width: 170px;
+  width: 80px;
   margin: 10 10;
 
 }

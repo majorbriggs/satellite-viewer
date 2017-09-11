@@ -60,7 +60,7 @@ def add_image_set(s3_key):
     calculate_ndvi(sources_dirpath, os.path.join(output_dirpath, "{}_NDVI.tif".format(image_id)), with_cloud_mask=True)
     add_geoserver_layers(output_dirpath, image_id)
     add_to_database(s3_key, src_dir=sources_dirpath)
-    #delete_source_files(sources_dirpath)
+    delete_source_files(sources_dirpath)
 
 if __name__ == "__main__":
     img = "c1/L8/190/022/LC08_L1TP_190022_20170816_20170825_01_T1/"

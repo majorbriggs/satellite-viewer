@@ -75,9 +75,14 @@
           </div>
           <div id="buttons">
 
-            <button class="btn-left" id="btn-ts-vi-info" >About TS/VI analysis</button>
-            <button class="btn-left" id="btn-show-ts-vi" >Add new images</button>
+            <!--<button class="btn-left" id="btn-ts-vi-info" >About TS/VI analysis</button>-->
+              <a class='text-large' target="_blank" href="https://landsatonaws.com/L8/190/022/">Browse Landsat 8 images</a>
 
+            <form action="/api/image" method="get" target="_blank">
+                {% csrf_token %}
+                <button class="btn-left" id="btn-show-ts-vi" type="submit" >Add</button>
+                <input id="url-input" type="text" name="image_uri" value="">
+            </form>
           </div>
         </div>
 

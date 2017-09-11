@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from multiprocessing import Process
 
 from aws.sqs import send_image_requested, JobMessage
 from viewer.models import SatelliteImage, add_sentinel_images, add_landsat_images
@@ -104,10 +105,13 @@ class WindowedRGBImage(APIView):
 class AddNewImageView(APIView):
     def get(self, request, format=None):
         from add_images import add_image_set
+
         image_uri = request.query_params.get('image_uri')
+
         if image_uri:
-            add_image_set(image_uri)
-            return Response({"result":"IMAGE ADDED"})
+            process = Process(target=add_image_set, args=(image_uri,))
+            process.start()
+            return Response({"result":"IMAGE PROCESSING STARTED"})
         return Response({"message_id":"Bad Request"})
 
 

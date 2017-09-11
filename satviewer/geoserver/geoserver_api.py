@@ -2,19 +2,12 @@ import requests
 from requests.auth import HTTPBasicAuth
 import os
 
-import const
-from const import WORKSPACE
-from aws.sqs import JobMessage
+from const import WORKSPACE, GEOSERVER_USERNAME, GEOSERVER_PASSWORD, DATA_ROOT
 
-GEOSERVER_REST_URL = "http://localhost:8080/geoserver/" + "rest/"
-auth = HTTPBasicAuth(username=os.getenv('GEOSERVER_USERNAME'), password=os.getenv('GEOSERVER_PASSWORD'))
+GEOSERVER_REST_URL = "http://satellite-viewer.pl:8080/geoserver/" + "rest/"
 
-DATASETS = ['2015_04_21__LC81900222015111LGN00',
-                '2017_04_10__LC81900222017100LGN00',
-                '2017_05_12__LC81900222017132LGN00',
-                '2017_05_28__LC81900222017148LGN00']
+auth = HTTPBasicAuth(username=GEOSERVER_USERNAME, password=GEOSERVER_PASSWORD)
 
-DATA_ROOT = '/home/piotrek/mgr/datasets/'
 
 
 def check_response(r):
@@ -67,12 +60,6 @@ def add_layer(ws, cs, name, title):
         print("Connection to Geoserver failed on creation of Layer.")
 
 
-def add_new_image_from_job_message(job: JobMessage):
-    img_id = job.key.replace(".tiff", '')
-    add_coverage_store(WORKSPACE, img_id, path='{storage}{key}'.format(storage=const.GEOSERVER_STORAGE, key=job.key))
-    add_layer(ws=WORKSPACE, cs=img_id, name=img_id, title=img_id)
-
-
 def add_style(name, sld):
     headers = {"Content-Type": "application/vnd.ogc.sld+xml"}
     params = {"name": name}
@@ -87,7 +74,7 @@ def add_style(name, sld):
         raise ValueError("Adding style failed with response: {} \n{}".format(r.status_code, r.text))
 
 
-def add_stores_for_datasets(datasets=DATASETS, data_root=DATA_ROOT):
+def add_stores_for_datasets(datasets, data_root=DATA_ROOT):
 
     suffixes = ['RGB', 'NDVI', 'TEMP']
     for dataset in datasets:
@@ -102,7 +89,7 @@ def add_stores_for_datasets(datasets=DATASETS, data_root=DATA_ROOT):
                                cs=cs_name,
                                path=image_path)
 
-def add_layers_for_datasets(datasets=DATASETS):
+def add_layers_for_datasets(datasets):
     suffixes = ['RGB', 'NDVI', 'TEMP']
     for dataset in datasets:
         image_id = dataset.split('__')[-1]

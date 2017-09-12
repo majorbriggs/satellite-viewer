@@ -6,6 +6,8 @@ import glob, os
 import rasterio
 import numpy as np
 from l8qa.qa import cloud_confidence
+from l8qa.qa_pre import cloud_qa
+
 import json
 from aws.aws_helpers import Image
 Bands = namedtuple("Bands", ["R", "G", "B", "NIR", "TIRS"])
@@ -21,9 +23,12 @@ def get_landsat_image_info(key, src_dir):
         key_short = key.strip('/').split('/')[-1]
         return Image(aws_bucket_uri=key_short, source="L8", data_percentage=100, clouds_percentage=clouds, date=date)
 
-def get_cloud_mask(src_dir):
+def get_cloud_mask(src_dir, is_pre_collection=False):
     with rasterio.open(band_filename(src_dir, 'QA')) as src:
-        return cloud_confidence(src.read(1)) == 3
+        band = src.read(1)
+        if is_pre_collection:
+            return ~(cloud_qa(band) == 1)
+        return cloud_confidence(band) == 3
 
 def band_filename(src_dir, band_number):
     os.chdir(src_dir)
@@ -74,7 +79,7 @@ def get_band(src_dir, band_number):
     band.close()
 
 
-def calculate_ndvi(src_dir, dst_path, x0=None, x1=None, y0=None, y1=None, with_cloud_mask=False):
+def calculate_ndvi(src_dir, dst_path, x0=None, x1=None, y0=None, y1=None, with_cloud_mask=False, is_pre_collection=False):
     with get_band(src_dir, bands.R) as r_band:
         with get_band(src_dir, bands.NIR) as nir_band:
             if not (x0 and x1 and y0 and y1):
@@ -85,7 +90,7 @@ def calculate_ndvi(src_dir, dst_path, x0=None, x1=None, y0=None, y1=None, with_c
             ndvi = np.true_divide((nir - r), (nir + r))
 
             if with_cloud_mask:
-                mask = get_cloud_mask(src_dir)
+                mask = get_cloud_mask(src_dir, is_pre_collection=is_pre_collection)
                 ndvi[mask] = np.nan
 
             with rasterio.open(dst_path, 'w',
@@ -97,7 +102,7 @@ def calculate_ndvi(src_dir, dst_path, x0=None, x1=None, y0=None, y1=None, with_c
 
 def calculate_rgb(src_dir, dst_path, display_min=5000,
                   display_max=13000, x0=None, x1=None, y0=None, y1=None,
-                  with_cloud_mask=False):
+                  with_cloud_mask=False, is_pre_collection=False):
 
     with get_band(src_dir, bands.R) as r_band:
         with get_band(src_dir, bands.G) as g_band:
@@ -112,7 +117,7 @@ def calculate_rgb(src_dir, dst_path, display_min=5000,
                 # if with_cloud_mask:
                 #     cloud_mask = ~get_cloud_mask(src_dir)
                 #     r, g, b = (band * cloud_mask for band in (r, g, b))
-                cloud_mask = ~get_cloud_mask(src_dir)
+                cloud_mask = ~get_cloud_mask(src_dir, is_pre_collection=is_pre_collection)
                 alpha = cloud_mask.astype(np.uint8) * 255
                 alpha[r == 0] = 0
 
@@ -124,7 +129,7 @@ def calculate_rgb(src_dir, dst_path, display_min=5000,
                         dst.write(arr, indexes=k)
 
 
-def calculate_ts(src_dir, dst_path, with_cloud_mask=True):
+def calculate_ts(src_dir, dst_path, with_cloud_mask=True, is_pre_collection=False):
 
 
     brightness_temp.calculate_landsat_brightness_temperature(src_path=band_filename(src_dir, bands.TIRS),
@@ -136,7 +141,7 @@ def calculate_ts(src_dir, dst_path, with_cloud_mask=True):
                                                              processes=1,
                                                              dst_dtype='float32')
     if with_cloud_mask:
-        cloud_mask = get_cloud_mask(src_dir)
+        cloud_mask = get_cloud_mask(src_dir, is_pre_collection=is_pre_collection)
         with rasterio.open(dst_path, mode='r+', nodata=np.nan) as src:
             band = src.read(1)
             band[cloud_mask] = np.nan

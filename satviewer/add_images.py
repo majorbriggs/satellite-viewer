@@ -52,16 +52,19 @@ def add_image_set(s3_key):
         os.mkdir(sources_dirpath)
     except FileExistsError:
         pass
-
+    is_pre_collection = not image_id.startswith('LC0')
     download_landsat_bands(dir_uri=s3_key, bands=bands, output_dir=sources_dirpath)
     download_mtl_json(dir_uri=s3_key, output_dir=sources_dirpath)
-    calculate_ts(sources_dirpath, os.path.join(output_dirpath, "{}_TEMP.tif".format(image_id)), with_cloud_mask=True)
-    calculate_rgb(sources_dirpath, os.path.join(output_dirpath, "{}_RGB.tif".format(image_id)), with_cloud_mask=True)
-    calculate_ndvi(sources_dirpath, os.path.join(output_dirpath, "{}_NDVI.tif".format(image_id)), with_cloud_mask=True)
+    calculate_ts(sources_dirpath, os.path.join(output_dirpath, "{}_TEMP.tif".format(image_id)), with_cloud_mask=True,
+                 is_pre_collection=is_pre_collection)
+    calculate_rgb(sources_dirpath, os.path.join(output_dirpath, "{}_RGB.tif".format(image_id)), with_cloud_mask=True,
+                  is_pre_collection=is_pre_collection)
+    calculate_ndvi(sources_dirpath, os.path.join(output_dirpath, "{}_NDVI.tif".format(image_id)), with_cloud_mask=True,
+                   is_pre_collection=is_pre_collection)
     add_geoserver_layers(output_dirpath, image_id)
     add_to_database(s3_key, src_dir=sources_dirpath)
     delete_source_files(sources_dirpath)
 
 if __name__ == "__main__":
-    img = "c1/L8/190/022/LC08_L1TP_190022_20170816_20170825_01_T1/"
+    img = "s3://landsat-pds/L8/190/022/LC81900222015223LGN00/"
     add_image_set(img)

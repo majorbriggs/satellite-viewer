@@ -5,6 +5,7 @@ import os
 from const import WORKSPACE, GEOSERVER_USERNAME, GEOSERVER_PASSWORD, DATA_ROOT
 
 GEOSERVER_REST_URL = "http://satellite-viewer.pl:8080/geoserver/" + "rest/"
+#GEOSERVER_REST_URL = "http://localhost:8080/geoserver/" + "rest/"
 
 auth = HTTPBasicAuth(username=GEOSERVER_USERNAME, password=GEOSERVER_PASSWORD)
 
@@ -124,4 +125,4 @@ def add_style_to_layer(layer, style, ws = WORKSPACE):
         print("Style {} added to layer {}".format(style, layer))
 
 if __name__ == "__main__":
-    add_layers_for_datasets()
+    pass

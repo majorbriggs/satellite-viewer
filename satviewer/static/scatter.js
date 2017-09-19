@@ -1,12 +1,16 @@
+var chart = null;
+var dataTable = null;
+
 function loadChart(){
     if (dataJson != ""){
         google.charts.load('current', {'packages':['corechart']});
         google.charts.setOnLoadCallback(drawChart);
+        chart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
     }
 }
 
 function drawChart() {
-    var dataTable = new google.visualization.DataTable();
+    dataTable = new google.visualization.DataTable();
     dataTable.addColumn("number", "NDVI");
     dataTable.addColumn("number", "TS");
     dataTable.addColumn("number", "longitude");
@@ -29,7 +33,6 @@ function drawChart() {
      height: 390,
     };
 
-    var chart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
 
     // Listen for the 'select' event, and call my function selectHandler() when
     // the user selects something on the chart.

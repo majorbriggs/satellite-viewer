@@ -27,9 +27,11 @@ landsat_bucket = s3.Bucket(landsat_bucket_name)
 client = boto3.client('s3', region_name='eu-central-1',
                       config=botocore.client.Config(signature_version=botocore.UNSIGNED))
 
-def get_image_id_from_s3_key(s3_key):
+def get_landsat_image_id_from_s3_key(s3_key):
     return s3_key.strip('/').split('/')[-1]
 
+def get_s2_image_id_from_s3_key(s3_key):
+    return s3_key.strip('/').replace('/', '_')
 
 def get_s2_images_data(prefix=s2_prefix):
     result = client.list_objects(Bucket=sentinel_bucket_name,
@@ -52,6 +54,15 @@ def get_s2_images_data(prefix=s2_prefix):
             for obj in get_s2_images_data(prefix=new_prefix):
                 yield obj
 
+
+def get_s2_image_info(key):
+    j = sentinel_bucket.Object(key + 'tileInfo.json').get()['Body']
+    tile_info = json.loads(j.read().decode('utf-8'))
+    return Image(source=SOURCE_SENTINEL,
+                aws_bucket_uri=get_s2_image_id_from_s3_key(key),
+                clouds_percentage=tile_info['cloudyPixelPercentage'],
+                data_percentage=tile_info.get('dataCoveragePercentage'),
+                date=tile_info['timestamp'].split('T')[0])
 
 def get_landsat_images_data(prefix=landsat_prefix):
     result = client.list_objects(Bucket=landsat_bucket_name,
@@ -78,9 +89,11 @@ def get_landsat_images_data(prefix=landsat_prefix):
 
 def download_sentinel_bands(bands, dir_uri, output_dir='.'):
     for band in bands:
+        scene_id = dir_uri.strip('/').split('/')[-1]
         band_filename = "B{:>02}.jp2".format(band)
+        output_filename = "B{}.jp2".format(band)
         file_key = dir_uri + band_filename
-        output_filepath = os.path.join(output_dir, band_filename)
+        output_filepath = os.path.join(output_dir, output_filename)
         client.download_file(sentinel_bucket_name, file_key, output_filepath)
         print("Band {} downloaded".format(band_filename))
 

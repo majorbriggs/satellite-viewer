@@ -424,17 +424,27 @@ function requestImage(element){
 
 
 function getFeature(latlng){
+    if (currentSceneID.startsWith("tiles")){
+        layers = getLayerName(currentSceneID, NDVI);
+        query_layers = layers
+        callback = 'callback:processSentinelFeatureInfoJson'
+    }
+    else {
+        layers = getLayerName(currentSceneID, TEMP)+','+ getLayerName(currentSceneID, NDVI)
+        query_layers = layers
+        callback = 'callback:processLandsatFeatureInfoJson'
+    }
     popupLatLng = latlng;
     var parameters = {
   service: 'WMS',
   version: '1.1.1',
   request: 'GetFeatureInfo',
   format: 'image/jpeg',
-  format_options: 'callback:processFeatureInfoJson',
+  format_options: callback,
   outputFormat: "text/javascript",
   transparent: true,
-  layers: getLayerName(currentSceneID, TEMP)+','+ getLayerName(currentSceneID, NDVI),
-  query_layers: getLayerName(currentSceneID, TEMP)+','+ getLayerName(currentSceneID, NDVI),
+  layers: layers,
+  query_layers: query_layers,
   feature_count: 50,
   info_format: 'text/javascript', // this is important
   srs: 'EPSG:4326',
@@ -459,15 +469,26 @@ $.ajax({
 }
 
 
-function processFeatureInfoJson(data){
-    displayFeatureInfoPopup(popupLatLng, data);
+function processLandsatFeatureInfoJson(data){
+    displayLandsatFeatureInfoPopup(popupLatLng, data);
 }
 
-function displayFeatureInfoPopup(latlng, data){
+function processSentinelFeatureInfoJson(data){
+    displaySentinelFeatureInfoPopup(popupLatLng, data);
+}
+
+function displayLandsatFeatureInfoPopup(latlng, data){
     popup.setLatLng(latlng)
    .setContent("<b>Ts:</b> "+ getFeatureValue(data, 0).toFixed(2) + "&#8451 <br/> <b>VI:</b> "+ getFeatureValue(data, 1).toFixed(3))
    .openOn(map);
 }
+
+function displaySentinelFeatureInfoPopup(latlng, data){
+    popup.setLatLng(latlng)
+   .setContent("<b>VI:</b> "+ getFeatureValue(data, 0).toFixed(3))
+   .openOn(map);
+}
+
 
 function getFeatureValue(data, index){
     return data["features"][index]["properties"]["GRAY_INDEX"];

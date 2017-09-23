@@ -109,6 +109,7 @@ class AddNewImageView(APIView):
         image_uri = request.query_params.get('image_uri')
 
         if image_uri:
+            #add_image_set(image_uri)
             process = Process(target=add_image_set, args=(image_uri,))
             process.start()
             return Response({"result":"IMAGE PROCESSING STARTED"})

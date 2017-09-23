@@ -10,7 +10,7 @@ from affine import Affine
 import os
 
 from rasterio import MemoryFile
-
+import numpy
 LngLat = namedtuple("LngLat", ['lng', 'lat'])
 
 
@@ -60,6 +60,9 @@ def get_tsvi(dataset_path, ne_lng, ne_lat, sw_lng, sw_lat, max_n=10000):
         raster_window = lnglatWin.get_rasterio_window()
         ndvi_points = ndvi_src.read(1, window=raster_window)
         ts_points = ts_src.read(1, window=raster_window)
+
+        ts_points[numpy.isnan(ts_points)] = 0
+        ndvi_points[numpy.isnan(ndvi_points)] = 0
         height = ndvi_points.shape[0]
         width = ndvi_points.shape[1]
         lngs = np.linspace(sw_lng, ne_lng, width)

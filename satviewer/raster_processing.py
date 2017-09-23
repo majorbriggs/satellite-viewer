@@ -7,21 +7,27 @@ import rasterio
 import numpy as np
 from l8qa.qa import cloud_confidence
 from l8qa.qa_pre import cloud_qa
-
+from const import LANDSAT, SENTINEL
 import json
-from aws.aws_helpers import Image
+from aws.aws_helpers import Image, get_s2_image_info
+
+
 Bands = namedtuple("Bands", ["R", "G", "B", "NIR", "TIRS"])
 
-bands = Bands(R=4, G=3, B=2, NIR=5, TIRS=10)
+landsat_bands = Bands(R=4, G=3, B=2, NIR=5, TIRS=10)
 
+s2_bands = Bands(R=4, G=3, B=2, NIR=8, TIRS=None)
 
-def get_landsat_image_info(key, src_dir):
-    with open(meta_filename(src_dir)) as src:
-        j = json.load(src)
-        clouds = j['L1_METADATA_FILE']['IMAGE_ATTRIBUTES']['CLOUD_COVER']
-        date = j['L1_METADATA_FILE']['PRODUCT_METADATA']['DATE_ACQUIRED']
-        key_short = key.strip('/').split('/')[-1]
-        return Image(aws_bucket_uri=key_short, source="L8", data_percentage=100, clouds_percentage=clouds, date=date)
+def get_image_info(key, src_dir, source=LANDSAT):
+    if source == LANDSAT:
+        with open(meta_filename(src_dir)) as src:
+            j = json.load(src)
+            clouds = j['L1_METADATA_FILE']['IMAGE_ATTRIBUTES']['CLOUD_COVER']
+            date = j['L1_METADATA_FILE']['PRODUCT_METADATA']['DATE_ACQUIRED']
+            key_short = key.strip('/').split('/')[-1]
+            return Image(aws_bucket_uri=key_short, source="L8", data_percentage=100, clouds_percentage=clouds, date=date)
+    else:
+        return get_s2_image_info(key)
 
 def get_cloud_mask(src_dir, is_pre_collection=False):
     with rasterio.open(band_filename(src_dir, 'QA')) as src:
@@ -32,7 +38,7 @@ def get_cloud_mask(src_dir, is_pre_collection=False):
 
 def band_filename(src_dir, band_number):
     os.chdir(src_dir)
-    name_pattern = "*B{}.TIF".format(band_number)
+    name_pattern = "*B{}.*".format(band_number)
     for file in glob.glob(name_pattern):
         return file
     raise FileNotFoundError(name_pattern)
@@ -79,7 +85,12 @@ def get_band(src_dir, band_number):
     band.close()
 
 
-def calculate_ndvi(src_dir, dst_path, x0=None, x1=None, y0=None, y1=None, with_cloud_mask=False, is_pre_collection=False):
+def calculate_ndvi(src_dir, dst_path, x0=None, x1=None, y0=None, y1=None, with_cloud_mask=False, is_pre_collection=False,
+                   source=LANDSAT):
+    if source == LANDSAT:
+        bands = landsat_bands
+    elif source == SENTINEL:
+        bands = s2_bands
     with get_band(src_dir, bands.R) as r_band:
         with get_band(src_dir, bands.NIR) as nir_band:
             if not (x0 and x1 and y0 and y1):
@@ -90,8 +101,9 @@ def calculate_ndvi(src_dir, dst_path, x0=None, x1=None, y0=None, y1=None, with_c
             ndvi = np.true_divide((nir - r), (nir + r))
 
             if with_cloud_mask:
-                mask = get_cloud_mask(src_dir, is_pre_collection=is_pre_collection)
-                ndvi[mask] = np.nan
+                # mask = get_cloud_mask(src_dir, is_pre_collection=is_pre_collection)
+                # ndvi[mask] = np.nan
+                ndvi[ndvi<=0] = np.nan
 
             with rasterio.open(dst_path, 'w',
                                driver='GTiff', width=y1 - y0, height=x1-x0, count=1, blockxsize=512, blockysize=512,
@@ -102,8 +114,15 @@ def calculate_ndvi(src_dir, dst_path, x0=None, x1=None, y0=None, y1=None, with_c
 
 def calculate_rgb(src_dir, dst_path, display_min=5000,
                   display_max=13000, x0=None, x1=None, y0=None, y1=None,
-                  with_cloud_mask=False, is_pre_collection=False):
-
+                  with_cloud_mask=False, is_pre_collection=False, source=LANDSAT):
+    if source == LANDSAT:
+        bands = landsat_bands
+        display_min = 5000
+        display_max = 13000
+    elif source == SENTINEL:
+        bands = s2_bands
+        display_min = 500
+        display_max = 3000
     with get_band(src_dir, bands.R) as r_band:
         with get_band(src_dir, bands.G) as g_band:
             with get_band(src_dir, bands.B) as b_band:
@@ -114,25 +133,24 @@ def calculate_rgb(src_dir, dst_path, display_min=5000,
                 g = to_uint8_lut(g_band.read(1, window=((x0, x1), (y0, y1))), display_min, display_max)
                 b = to_uint8_lut(b_band.read(1, window=((x0, x1), (y0, y1))), display_min, display_max)
 
-                # if with_cloud_mask:
-                #     cloud_mask = ~get_cloud_mask(src_dir)
-                #     r, g, b = (band * cloud_mask for band in (r, g, b))
-                cloud_mask = ~get_cloud_mask(src_dir, is_pre_collection=is_pre_collection)
-                alpha = cloud_mask.astype(np.uint8) * 255
-                alpha[r == 0] = 0
-
                 with rasterio.open(dst_path, 'w',
-                                   driver='GTiff', width=y1-y0, height=x1-x0, count=4, tiled=True,
+                                   driver='GTiff', width=y1-y0, height=x1-x0, count=4 if with_cloud_mask else 3, tiled=True,
                                    blockxsize=512, blockysize=512, compress=None, dtype=np.uint8,
                                    crs=r_band.crs, transform=r_band.transform, nodata=255) as dst:
-                    for k, arr in [(1, r), (2, g), (3, b), (4, alpha)]:
-                        dst.write(arr, indexes=k)
-
+                    if with_cloud_mask:
+                        cloud_mask = ~get_cloud_mask(src_dir, is_pre_collection=is_pre_collection)
+                        alpha = cloud_mask.astype(np.uint8) * 255
+                        alpha[r == 0] = 0
+                        for k, arr in [(1, r), (2, g), (3, b), (4, alpha)]:
+                            dst.write(arr, indexes=k)
+                    else:
+                        for k, arr in [(1, r), (2, g), (3, b)]:
+                            dst.write(arr, indexes=k)
 
 def calculate_ts(src_dir, dst_path, with_cloud_mask=True, is_pre_collection=False):
 
 
-    brightness_temp.calculate_landsat_brightness_temperature(src_path=band_filename(src_dir, bands.TIRS),
+    brightness_temp.calculate_landsat_brightness_temperature(src_path=band_filename(src_dir, landsat_bands.TIRS),
                                                              src_mtl=meta_filename(src_dir),
                                                              dst_path=dst_path,
                                                              creation_options={},

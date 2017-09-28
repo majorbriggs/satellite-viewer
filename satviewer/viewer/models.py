@@ -33,12 +33,14 @@ def add_image(image: Image):
 
 
 def add_sentinel_images():
+    """Read data for all availavble Landsat images from AWS"""
     for image in get_s2_images_data():
         print("Adding image {}".format(image.aws_bucket_uri))
         add_image(image)
 
 
 def add_landsat_images():
+    """Read data for all availavble Landsat images from AWS"""
     for image in get_landsat_images_data():
         print("Adding Landsat image {}".format(image.aws_bucket_uri))
         add_image(image)

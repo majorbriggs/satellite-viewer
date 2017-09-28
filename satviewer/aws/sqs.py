@@ -1,3 +1,6 @@
+"""This is some initial work to have an infrastructure with multiple workers processing the
+scenes and communicating with the server via SQS"""
+
 import logging
 
 import boto3

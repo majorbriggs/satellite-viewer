@@ -53,14 +53,16 @@ class SingleImageView(APIView):
 
 
 class AddSentinelImagesView(APIView):
-
+    """API endpoint to look for all currently available 
+    Sentinel scenes for Pomeranian disctrict."""
     def get(self, request, format=None):
         add_sentinel_images()
         return Response(status=status.HTTP_200_OK)
 
 
 class AddLandsatImagesView(APIView):
-
+    """API endpoint to look for all currently available 
+        Landsat scenes for Pomeranian disctrict."""
     def get(self, request, format=None):
         add_landsat_images()
         return Response(status=status.HTTP_200_OK)

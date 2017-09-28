@@ -11,8 +11,8 @@ function loadChart(){
 
 function drawChart() {
     dataTable = new google.visualization.DataTable();
-    dataTable.addColumn("number", "NDVI");
     dataTable.addColumn("number", "TS");
+    dataTable.addColumn("number", "NDVI");
     dataTable.addColumn("number", "longitude");
     dataTable.addColumn("number", "latitude");
 
@@ -26,10 +26,20 @@ function drawChart() {
     }
     var options = {
      title: 'Ts / VI scatterplot.\n' + pixelsDetails,
-     vAxis: {title: 'Ts', minValue: 20, maxValue: 25},
-     hAxis: {title: 'VI', minValue: 0, maxValue: 0.5},
-     legend: 'none',
+     vAxis: {title: 'VI',
+     viewWindowMode:'explicit',
+     viewWindow: {
+              max:-0.5,
+              min:1.0
+            }},
+     hAxis: {title: 'Ts [\u2103]', viewWindowMode:'explicit',
+            viewWindow: {
+              max:15,
+              min:40
+            }},
      pointSize: 1,
+     legend: 'none',
+
      height: 390,
     };
 

@@ -151,6 +151,4 @@ STATICFILES_DIRS  = [
 
 STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), "static_cdn")
 
-PRODUCTION = True
-PRODUCTION_GEOSERVER = 'http://satellite-viewer.pl:8080/geoserver/'
-GEOSERVER_URL = PRODUCTION_GEOSERVER if PRODUCTION else "http://localhost:8080/geoserver/"
+PRODUCTION = False

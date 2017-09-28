@@ -2,10 +2,9 @@ import requests
 from requests.auth import HTTPBasicAuth
 import os
 
-from const import WORKSPACE, GEOSERVER_USERNAME, GEOSERVER_PASSWORD, DATA_ROOT
+from const import WORKSPACE, GEOSERVER_USERNAME, GEOSERVER_PASSWORD, DATA_ROOT, GEOSERVER_URL
 
-GEOSERVER_REST_URL = "http://satellite-viewer.pl:8080/geoserver/" + "rest/"
-#GEOSERVER_REST_URL = "http://localhost:8080/geoserver/" + "rest/"
+GEOSERVER_REST_URL = GEOSERVER_URL + "rest/"
 
 auth = HTTPBasicAuth(username=GEOSERVER_USERNAME, password=GEOSERVER_PASSWORD)
 

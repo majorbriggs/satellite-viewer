@@ -1,6 +1,5 @@
 from collections import namedtuple
 from contextlib import contextmanager
-
 from rio_toa import brightness_temp
 import glob, os
 import rasterio
@@ -9,6 +8,8 @@ from l8qa.qa import cloud_confidence
 from l8qa.qa_pre import cloud_qa
 from const import LANDSAT, SENTINEL
 import json
+from rio_toa.reflectance import calculate_landsat_reflectance
+
 from aws.aws_helpers import Image, get_s2_image_info
 
 
@@ -30,13 +31,13 @@ def get_image_info(key, src_dir, source=LANDSAT):
         return get_s2_image_info(key)
 
 def get_cloud_mask(src_dir, is_pre_collection=False):
-    with rasterio.open(band_filename(src_dir, 'QA')) as src:
+    with rasterio.open(band_filepath(src_dir, 'QA')) as src:
         band = src.read(1)
         if is_pre_collection:
             return ~(cloud_qa(band) == 1)
         return cloud_confidence(band) == 3
 
-def band_filename(src_dir, band_number):
+def band_filepath(src_dir, band_number):
     os.chdir(src_dir)
     name_pattern = "*B{}.*".format(band_number)
     for file in glob.glob(name_pattern):
@@ -79,7 +80,7 @@ def to_uint8_lut(image, display_min, display_max):
 
 @contextmanager
 def get_band(src_dir, band_number):
-    band_path = band_filename(src_dir, band_number)
+    band_path = band_filepath(src_dir, band_number)
     band = rasterio.open(band_path)
     yield band
     band.close()
@@ -101,8 +102,8 @@ def calculate_ndvi(src_dir, dst_path, x0=None, x1=None, y0=None, y1=None, with_c
             ndvi = np.true_divide((nir - r), (nir + r))
 
             if with_cloud_mask:
-                # mask = get_cloud_mask(src_dir, is_pre_collection=is_pre_collection)
-                # ndvi[mask] = np.nan
+                mask = get_cloud_mask(src_dir, is_pre_collection=is_pre_collection)
+                ndvi[mask] = np.nan
                 ndvi[ndvi<=0] = np.nan
 
             with rasterio.open(dst_path, 'w',
@@ -150,7 +151,7 @@ def calculate_rgb(src_dir, dst_path, display_min=5000,
 def calculate_ts(src_dir, dst_path, with_cloud_mask=True, is_pre_collection=False):
 
 
-    brightness_temp.calculate_landsat_brightness_temperature(src_path=band_filename(src_dir, landsat_bands.TIRS),
+    brightness_temp.calculate_landsat_brightness_temperature(src_path=band_filepath(src_dir, landsat_bands.TIRS),
                                                              src_mtl=meta_filename(src_dir),
                                                              dst_path=dst_path,
                                                              creation_options={},
@@ -165,17 +166,17 @@ def calculate_ts(src_dir, dst_path, with_cloud_mask=True, is_pre_collection=Fals
             band[cloud_mask] = np.nan
             src.write_band(1, band)
 
+def calculate_landsat_toa_reflectance(src_dir):
+
+    for band in [landsat_bands.R, landsat_bands.NIR]:
+        band_path = band_filepath(src_dir, band)
+        calculate_landsat_reflectance(src_paths=[band_path,], src_mtl=meta_filename(src_dir), dst_path=band_path,
+                                  creation_options={}, bands=[band],
+                                  rescale_factor=np.iinfo(np.uint16).max, pixel_sunangle=False, processes=1, dst_dtype='uint16')
+    pass
 
 if __name__ == "__main__":
-    ROOT = "/home/piotrek/mgr/datasets/"
+    ROOT = "/home/piotrek/mgr/datasets_fix/landsat_may_28"
 
-    data_sets = [#'2015_04_21__LC81900222015111LGN00',
-                 'LC08_L1TP_190022_20170731_20170801_01_RT']
-
-    for data_set in data_sets:
-        print("Calculating set: "+data_set)
-        input_dirpath = ROOT + data_set + "/sources/"
-        prefix = data_set.split("__")[-1]
-
-        calculate_ts(src_dir=input_dirpath, dst_path=prefix + 'TEMP.tif', with_cloud_mask=True)
+    calculate_landsat_toa_reflectance(ROOT)
 

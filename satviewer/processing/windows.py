@@ -79,7 +79,7 @@ def get_tsvi(dataset_path, ne_lng, ne_lat, sw_lng, sw_lat, max_n=10000):
             ndvi_list = ndvi_list[::step]
             ts_list = ts_list[::step]
             XY = XY[::step]
-        points = list(zip(ndvi_list, ts_list, *zip(*XY)))
+        points = list(zip(ts_list, ndvi_list, *zip(*XY)))
         return TsViData(original_size=orig_size, points=points, downsampled=downsampled, step=step)
 
 

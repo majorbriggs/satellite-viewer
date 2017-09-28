@@ -7,7 +7,7 @@ window.onload=function(){
     $(document).on('click', '.image-entry', function() {requestImage(this);});
 }
 
-var legendUrl = geoServerUrl + "wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=30&HEIGHT=20&LAYER=";
+var legendUrl = geoServerUrl + "wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=30&HEIGHT=13&LAYER=";
 var temperatureStyle = 'TEMP';
 var ndviStyle = 'NDVI';
 var dataJson = "";
@@ -92,9 +92,6 @@ function updateLegend(){
             $("#legend").attr("src", "");
         }
     }
-
-
-
 }
 
 function restoreLayersSelection(){
@@ -104,7 +101,6 @@ function restoreLayersSelection(){
       layerControlElement.getElementsByTagName('input')[i+1].click();
     }
   }
-  
 }
 
 
@@ -166,7 +162,7 @@ function setupMap()
     var myStyle = {
         "color": "#000000",
         "weight": 2,
-        "opacity": 0.65,
+        "opacity": 0.1,
         "dashArray": '5, 5',
     };  
     var drawControlAdd = new L.Control.Draw({

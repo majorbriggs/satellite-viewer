@@ -1,6 +1,5 @@
 from django.shortcuts import render
-from django.conf import settings
-
+import const
 # Create your views here.
 def home_page(request):
-    return render(request, 'base.html', context={"geoserver_url":settings.GEOSERVER_URL})
+    return render(request, 'base.html', context={"geoserver_url":const.GEOSERVER_URL})

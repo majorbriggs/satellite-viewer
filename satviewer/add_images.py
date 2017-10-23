@@ -59,14 +59,14 @@ def add_s2_image_set(s3_key):
         os.mkdir(sources_dirpath)
     except FileExistsError:
         pass
-    download_sentinel_bands(dir_uri=s3_key, bands=bands, output_dir=sources_dirpath)
+    #download_sentinel_bands(dir_uri=s3_key, bands=bands, output_dir=sources_dirpath)
     calculate_rgb(sources_dirpath, os.path.join(output_dirpath, "{}_RGB.tif".format(image_id)),
                   with_cloud_mask=False, source=SENTINEL)
     calculate_ndvi(sources_dirpath, os.path.join(output_dirpath, "{}_NDVI.tif".format(image_id)),
                    with_cloud_mask=True, source=SENTINEL)
     add_geoserver_layers(output_dirpath, image_id, layers=(RGB, NDVI))
     add_to_database(s3_key, src_dir=sources_dirpath, source=SENTINEL)
-    delete_source_files(sources_dirpath)
+    #delete_source_files(sources_dirpath)
 
 def add_landsat_image_set(s3_key):
     bands = [2, 3, 4, 5, 10, 'QA']
@@ -95,8 +95,11 @@ def add_landsat_image_set(s3_key):
                    is_pre_collection=is_pre_collection)
     add_geoserver_layers(output_dirpath, image_id)
     add_to_database(s3_key, src_dir=sources_dirpath)
-    delete_source_files(sources_dirpath)
+    #delete_source_files(sources_dirpath)
 
+def delete_image_files(image_id):
+    images_dirpath = os.path.join(DATA_ROOT, image_id)
+    delete_source_files(images_dirpath)
 
 if __name__ == "__main__":
     img = "s3://landsat-pds/c1/L8/190/022/LC08_L1TP_190022_20170528_20170615_01_T1/"

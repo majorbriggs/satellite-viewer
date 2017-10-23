@@ -7,7 +7,8 @@ from viewer.api.views import (
     AddLandsatImagesView,
     AddSentinelImagesView,
     WindowedTSVI,
-    WindowedRGBImage)
+    WindowedRGBImage,
+    DeleteImage)
 
 urlpatterns = [
     url(r'images/$', ImagesListAPIView.as_view(), name='images-list'),
@@ -16,7 +17,8 @@ urlpatterns = [
     url(r'images/add/sentinel$', AddSentinelImagesView.as_view(), name='add-images-sentinel'),
     url(r'images/add/landsat$', AddLandsatImagesView.as_view(), name='add-images-landsat'),
     url(r'tsvi$', WindowedTSVI.as_view(), name='tsvi'),
-    url(r'windowed_image$', WindowedRGBImage.as_view(), name='windowed-image')
+    url(r'windowed_image$', WindowedRGBImage.as_view(), name='windowed-image'),
+    url(r'image/delete', DeleteImage.as_view(), name='delete-image'),
 
 ]
 

@@ -5,6 +5,10 @@ window.onload=function(){
     percentageSlider("#clouds-range", "#clouds-amount", 0, 100);
     percentageSlider("#data-range", "#data-amount", 0, 100);
     $(document).on('click', '.image-entry', function() {requestImage(this);});
+    $(document).on('click', '.delete-bin', function(){
+        var imageId = $(this).closest('li')[0].id;
+        deleteImage(imageId);
+});
 }
 
 var legendUrl = geoServerUrl + "wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=30&HEIGHT=13&LAYER=";
@@ -83,10 +87,10 @@ function onOverlayRemove(e){
 function updateLegend(){
     if (currentSceneID !== '') {
         if (stateOfLayers[2] === true){
-            $("#legend").attr("src", legendUrl + getLayerName(currentSceneID, TEMP));
+            $("#legend").attr("src", "static/legend_ndvi.png");//legendUrl + getLayerName(currentSceneID, TEMP));
         }
         else if (stateOfLayers[1] === true){
-            $("#legend").attr("src", legendUrl + getLayerName(currentSceneID, NDVI));
+            $("#legend").attr("src", "static/legend_ts.png");//legendUrl + getLayerName(currentSceneID, NDVI));
         }
         else {
             $("#legend").attr("src", "");
@@ -396,13 +400,17 @@ function buildImagesList(response){
   var txt = '';
   for (var i=0; i<len; i++){
     imgObject = response[i];
-    txt += '<li><div class="image-entry"><table>';
+    txt += '<li id="'+imgObject.aws_bucket_uri+'"><div class="image-entry"><table>';
     txt += '<tr><td><span class="label">Source: </span></td><td class="value"><span class="value">'+imgObject.source+'</span></td></tr>';
     txt += '<tr><td><span class="label">Image ID: </span></td><td class="image-id"><span class="value">'+imgObject.aws_bucket_uri+'</span></td></tr>';
     txt += '<tr><td><span class="label">Data:</span></td><td><span class="value">'+imgObject.data_percentage+'%</span></td></tr>';
     txt += '<tr><td><span class="label">Clouds:</span></td><td><span class="value">'+imgObject.clouds_percentage+'%</span></td></tr>';
-    txt += '<tr><td><span class="label">Date:</span></td><td><span class="value">'+imgObject.date+'</span></td></tr></table></div></li>';
+    txt += '<tr><td><span class="label">Date:</span></td><td><span class="value">'+imgObject.date+'</span></td></tr>';
+    txt += '<tr><td><span class="label">Actions:</span></td><td class="delete-bin"><svg class="bin-icon" viewBox="0 0 24 24"><path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z" /></svg></td>';
+    txt += '</tr></table></div></li>'
+
   }
+
   var end = "</ul>";
   return start + txt + end;
 }
@@ -489,3 +497,31 @@ function displaySentinelFeatureInfoPopup(latlng, data){
 function getFeatureValue(data, index){
     return data["features"][index]["properties"]["GRAY_INDEX"];
 }
+
+function deleteImage(imageId){
+    if (confirm('Do you want to delete the image '+ imageId )) {
+        deleteAjax(imageId);
+    } else {
+    }
+
+}
+
+function deleteAjax(imageId)
+    {
+    $.ajax
+      (
+        {
+          type: 'GET',
+          url: 'api/image/delete',
+          dataType: "json",
+          data:
+            {
+              image_uri: imageId,
+            },
+          success: function(response)
+            {
+              filterWithAjax();
+            }
+        }
+      );
+    }

@@ -117,5 +117,13 @@ class AddNewImageView(APIView):
             return Response({"result":"IMAGE PROCESSING STARTED"})
         return Response({"message_id":"Bad Request"})
 
+class DeleteImage(APIView):
 
-
+    def get(self, request):
+        from geoserver.geoserver_api import delete_stores_for_dataset
+        from add_images import delete_image_files
+        image_uri = request.query_params.get('image_uri')
+        delete_stores_for_dataset(image_uri)
+        SatelliteImage.objects.filter(aws_bucket_uri=image_uri).delete()
+        delete_image_files(image_uri)
+        return Response({"result": "IMAGE DELETED"})

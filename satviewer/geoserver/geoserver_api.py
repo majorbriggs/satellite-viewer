@@ -59,6 +59,16 @@ def add_layer(ws, cs, name, title):
     except requests.ConnectionError:
         print("Connection to Geoserver failed on creation of Layer.")
 
+def delete_store(ws, cs):
+    headers = {'Content-Type': 'text/xml'}
+    url = GEOSERVER_REST_URL + 'workspaces/{ws}/coveragestores/{cs}'.format(ws=ws, cs=cs)
+    try:
+        r = requests.delete(url=url, headers=headers,
+                          auth=auth, params={'recurse':"true"})
+        check_response(r)
+
+    except requests.ConnectionError:
+        print("Connection to Geoserver failed on creation of Layer.")
 
 def add_style(name, sld):
     headers = {"Content-Type": "application/vnd.ogc.sld+xml"}
@@ -99,6 +109,11 @@ def add_layers_for_datasets(datasets):
             cs_name = "{}_{}".format(image_id, suffix)
             add_layer(ws=WORKSPACE, cs=cs_name, name=cs_name, title=cs_name)
 
+def delete_stores_for_dataset(image_id):
+    suffixes = ['RGB', 'NDVI', 'TEMP']
+    for suffix in suffixes:
+        cs_name = "{}_{}".format(image_id, suffix)
+        delete_store(ws=WORKSPACE, cs=cs_name)
 
 def get_all_layers_names():
     headers = {'Content-Type': 'text/json'}

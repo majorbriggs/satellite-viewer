@@ -13,11 +13,11 @@ from rio_toa.reflectance import calculate_landsat_reflectance
 from aws.aws_helpers import Image, get_s2_image_info
 
 
-Bands = namedtuple("Bands", ["R", "G", "B", "NIR", "TIRS"])
+SentineBands = namedtuple("Bands", ["R", "G", "B", "NIR", "R_REFL", "NIR_REFL"])
+LandsatBands = namedtuple("LandsatBands", ["R", "G", "B", "NIR", "TIRS", "R_REFL", "NIR_REFL"])
+landsat_bands = LandsatBands(R=4, G=3, B=2, NIR=5, TIRS=10, R_REFL="4_REFL", NIR_REFL="5_REFL")
 
-landsat_bands = Bands(R=4, G=3, B=2, NIR=5, TIRS=10)
-
-s2_bands = Bands(R=4, G=3, B=2, NIR=8, TIRS=None)
+s2_bands = SentineBands(R=4, G=3, B=2, NIR=8, R_REFL=4, NIR_REFL=8)
 
 def get_image_info(key, src_dir, source=LANDSAT):
     if source == LANDSAT:
@@ -92,8 +92,8 @@ def calculate_ndvi(src_dir, dst_path, x0=None, x1=None, y0=None, y1=None, with_c
         bands = landsat_bands
     elif source == SENTINEL:
         bands = s2_bands
-    with get_band(src_dir, bands.R) as r_band:
-        with get_band(src_dir, bands.NIR) as nir_band:
+    with get_band(src_dir, bands.R_REFL) as r_band:
+        with get_band(src_dir, bands.NIR_REFL) as nir_band:
             if not (x0 and x1 and y0 and y1):
                 x0, y0 = 0, 0
                 x1, y1 = r_band.shape
@@ -102,9 +102,11 @@ def calculate_ndvi(src_dir, dst_path, x0=None, x1=None, y0=None, y1=None, with_c
             ndvi = np.true_divide((nir - r), (nir + r))
 
             if with_cloud_mask:
-                mask = get_cloud_mask(src_dir, is_pre_collection=is_pre_collection)
-                ndvi[mask] = np.nan
-                ndvi[ndvi<=0] = np.nan
+                if source == LANDSAT:
+                    mask = get_cloud_mask(src_dir, is_pre_collection=is_pre_collection)
+
+                    ndvi[mask] = np.nan
+                    ndvi[ndvi<=0] = np.nan
 
             with rasterio.open(dst_path, 'w',
                                driver='GTiff', width=y1 - y0, height=x1-x0, count=1, blockxsize=512, blockysize=512,
@@ -170,7 +172,8 @@ def calculate_landsat_toa_reflectance(src_dir):
 
     for band in [landsat_bands.R, landsat_bands.NIR]:
         band_path = band_filepath(src_dir, band)
-        calculate_landsat_reflectance(src_paths=[band_path,], src_mtl=meta_filename(src_dir), dst_path=band_path,
+        dst_path = os.path.join(os.path.dirname(band_path), "B{}_REFL.TIF".format(band))
+        calculate_landsat_reflectance(src_paths=[band_path,], src_mtl=meta_filename(src_dir), dst_path=dst_path,
                                   creation_options={}, bands=[band],
                                   rescale_factor=np.iinfo(np.uint16).max, pixel_sunangle=False, processes=1, dst_dtype='uint16')
     pass

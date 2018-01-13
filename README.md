@@ -1,4 +1,5 @@
-Satellite Viewer
+# Satellite Viewer
+
 
 Web application based on GeoServer, Django, Leaflet, rasterio and numpy.
 It allows to download, process and analyze satellite data from Sentinel-2 and Landsat 8 systems.
@@ -13,15 +14,15 @@ processed using rasterio and numpy libraries, and uploaded to a GeoServer instan
 Done as part of my master thesis at Gdansk University of Technology.
 
 
-To set up the application locally:
-======================================
+## To set up the application locally:
+
 
 1. Do the common steps for Valid for both section
 2. Make sure the variable production in settings.py False
 3. Run the application with python manage.py runserver, make sure to create a superuser for the database
 
-To set up the application on AWS:
-====================================
+## To set up the application on AWS:
+
 1. Create an instance (the tiny one is to weak for the application, I used xlarge General purpouse type)
 2. install the dependencies from initial.sh
 2. Do the steps from Valid for both section
@@ -29,8 +30,8 @@ To set up the application on AWS:
 4. Make sure the app uses the correct server URLs for the AJAX calls (check paths in const.py and Javascript code in static folder)
 5. Set production variable in settings.py to True
 
-Valid for both
-================
+## Valid for both
+
 1. Install and run GeoServer
 2. Set up paths and AWS API keys in const.py
 3. pip install all python requirements from requirements.txt
